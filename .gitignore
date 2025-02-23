@@ -2,3 +2,6 @@
 /DDICorpus
 /pubmed_portions
 /Dataset
+/Pipeline2/model.bin
+/Pipeline2/model.bin.syn1neg.npy
+/Pipeline2/model.bin.wv.vectors.npy
