@@ -1,4 +1,4 @@
-/* * {
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -464,10 +464,10 @@ nav {
   .about-background-image-container {
     display: none;
   }
-} */
+}
 
 
-.App {
+/* .App {
   text-align: center;
 }
 
@@ -504,4 +504,4 @@ nav {
   to {
     transform: rotate(360deg);
   }
-}
+} */
