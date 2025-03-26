@@ -34,7 +34,7 @@ export default function DrugSearchPanel() {
           <VStack spacing="4" align="stretch">
             <VStack spacing="2" align="stretch">
               <Flex gap="2">
-                <Input placeholder="Enter drug name" value={drugName} onChange={(e) => setDrugName(e.target.value)} />
+                <Input placeholder="Enter drug name" value={drugName} onChange={(e) => setDrugName(e.target.value)} p="2" />
                 <IconButton type="submit" aria-label="Search" icon={<SearchIcon />} />
               </Flex>
             </VStack>
@@ -44,22 +44,22 @@ export default function DrugSearchPanel() {
               </Text>
               <Wrap spacing="2">
                 <WrapItem>
-                  <Button size="sm" variant="outline" onClick={() => setDrugName("Aspirin")}>
+                  <Button size="sm" variant="outline" p="2" onClick={() => setDrugName("Aspirin")}>
                     Aspirin
                   </Button>
                 </WrapItem>
                 <WrapItem>
-                  <Button size="sm" variant="outline" onClick={() => setDrugName("Lisinopril")}>
+                  <Button size="sm" variant="outline" p="2" onClick={() => setDrugName("Lisinopril")}>
                     Lisinopril
                   </Button>
                 </WrapItem>
                 <WrapItem>
-                  <Button size="sm" variant="outline" onClick={() => setDrugName("Metformin")}>
+                  <Button size="sm" variant="outline" p="2" onClick={() => setDrugName("Metformin")}>
                     Metformin
                   </Button>
                 </WrapItem>
                 <WrapItem>
-                  <Button size="sm" variant="outline" onClick={() => setDrugName("Atorvastatin")}>
+                  <Button size="sm" variant="outline" p="2" onClick={() => setDrugName("Atorvastatin")}>
                     Atorvastatin
                   </Button>
                 </WrapItem>

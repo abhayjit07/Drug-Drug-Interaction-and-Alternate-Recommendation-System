@@ -9,14 +9,14 @@ export default function DashboardLayout() {
       console.log("Logged out");
   }
 
-  return (
-      <Flex as="nav" p="4" bg="blue.500" color="white" justifyContent="space-between" alignItems="center">
-          <Heading size="md">My App</Heading>
-          <Flex gap="4">
-              <Button colorScheme="blue" onClick={() => console.log("Home clicked")}>Home</Button>
-              <Button colorScheme="yellow" onClick={handleAlert}>Alert</Button>
-              <Button colorScheme="red" onClick={handleLogout}>Logout</Button>
-          </Flex>
-      </Flex>
-  )
+return (
+        <Flex as="nav" p="4" bg="blue.500" color="white" justifyContent="space-between" alignItems="center">
+                <Heading size="md">My App</Heading>
+                <Flex gap="4">
+                        <Button bg="blue.800" color="white" p="4" borderRadius={"md"} onClick={() => console.log("Home clicked")}>Home</Button>
+                        <Button bg="yellow.400" color="black" p="4" borderRadius={"md"} onClick={handleAlert}>Alert</Button>
+                        <Button bg="red.600" color="white" p="4" borderRadius={"md"} onClick={handleLogout}>Logout</Button>
+                </Flex>
+        </Flex>
+)
 }
