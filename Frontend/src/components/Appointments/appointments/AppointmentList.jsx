@@ -1,7 +1,6 @@
 import { Box, Flex, Text, Tag, IconButton } from "@chakra-ui/react";
 import { FiMoreVertical } from "react-icons/fi";
 
-
 export function AppointmentList({ activeTab, upcomingAppointments }) {
     if (activeTab === "Upcoming") {
         return upcomingAppointments.map((appointment) => (

@@ -1,4 +1,5 @@
 import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react"
+import { useNavigate } from "react-router-dom"
 
 export default function Appointments() {
     const upcomingAppointments = [
@@ -24,6 +25,9 @@ export default function Appointments() {
             location: "789 Oak St, New York, NY",
         },
     ]
+
+
+    const navigate = useNavigate();
 
     return (
         <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
@@ -52,8 +56,12 @@ export default function Appointments() {
                 </VStack>
             </Box>
             <Box p="4" borderTopWidth="1px">
-                <Button variant="outline" width="full">View All Appointments</Button>
+                <Button variant="outline" width="full" onClick={() => navigate('/appointments')}>
+                    View All Appointments
+                </Button>
             </Box>
         </Box>
     )
 }
+
+

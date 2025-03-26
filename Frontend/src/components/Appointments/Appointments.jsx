@@ -43,6 +43,7 @@ export default function Appointments() {
             <Flex justifyContent="space-between" p={4}>
                 <Heading size="lg">Appointments</Heading>
                 <Button leftIcon={<FiPlus />} colorScheme="blackAlpha" onClick={onOpen}>Add Appointment</Button>
+                <Button colorScheme="blackAlpha">Calender</Button>
             </Flex>
             <Flex p={4} gap={4}>
                 <Button colorScheme={activeTab === "Upcoming" ? "blue" : "gray"} onClick={() => setActiveTab("Upcoming")}>Upcoming ({upcomingAppointments.length})</Button>
