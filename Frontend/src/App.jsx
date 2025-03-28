@@ -34,6 +34,7 @@ import Profile from "./components/Dashboard/profile";
 import { useState } from "react";
 import { auth } from "./components/Authentication/firebase";
 import Appointments from "./components/Appointments/Appointments";
+import Medicines from "./components/Medicines/Medicines";
 
 function App() {
   const [user, setUser] = useState();
@@ -57,6 +58,7 @@ function App() {
               <Route path="/register" element={<SignUp />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/appointments" element={<Appointments />} />
+              <Route path="/medicines" element={<Medicines />} />
             </Routes>
             <ToastContainer />
           </div>

@@ -1,4 +1,4 @@
-import { Box, Flex, Text, Tag, IconButton } from "@chakra-ui/react";
+import { Box, Flex, Text, IconButton } from "@chakra-ui/react";
 import { FiMoreVertical } from "react-icons/fi";
 
 export function AppointmentList({ activeTab, upcomingAppointments }) {

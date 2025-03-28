@@ -1,6 +1,9 @@
 import { Box, Button, Flex, Heading, Icon, Text, VStack } from "@chakra-ui/react"
+import { useNavigate } from "react-router-dom"
 
 export default function Reminders() {
+
+    const navigate = useNavigate()
     const reminders = [
         {
             id: 1,
@@ -65,7 +68,7 @@ export default function Reminders() {
                 </VStack>
             </Box>
             <Box p="4" borderTopWidth="1px">
-                <Button variant="outline" width="full">
+                <Button variant="outline" width="full" onClick={() => navigate('/medicines')}>
                     View All Medicines
                 </Button>
             </Box>
