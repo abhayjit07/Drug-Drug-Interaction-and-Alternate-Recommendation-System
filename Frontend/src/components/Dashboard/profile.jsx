@@ -66,8 +66,13 @@ import DrugSearchPanel from "./dashboard/DrugSearchPanel"
 import Appointments from "./dashboard/Appointments"
 import Reminders from "./dashboard/Reminders"
 import { Box } from "@chakra-ui/react"
+import React, { useEffect, useState } from "react";
+
+
 
 export default function Profile() {
+
+
   return (
     <>
       <DashboardLayout />
