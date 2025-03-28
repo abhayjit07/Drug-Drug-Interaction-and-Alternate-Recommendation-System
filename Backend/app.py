@@ -193,7 +193,6 @@ def create_appointment():
         print(f"Unexpected error: {e}")
         return jsonify({"error": str(e)}), 500
 
-# Similar CRUD methods for get, update, delete appointments...
 
 @app.route('/', methods = ['GET'])
 def home():

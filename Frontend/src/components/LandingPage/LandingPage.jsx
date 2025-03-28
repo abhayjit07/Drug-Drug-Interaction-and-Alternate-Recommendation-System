@@ -4,7 +4,6 @@ import Contact from './Contact';
 import Features from './Features';
 import Footer from './Footer';
 import Home from './Home';
-import Testimonial from './Testimonial';
 import React from 'react';
 
 function LandingPage() {
@@ -13,7 +12,6 @@ function LandingPage() {
       <Home />
       <Features />
       <About />
-      <Testimonial />
       <Contact />
       <Footer />
     </div>

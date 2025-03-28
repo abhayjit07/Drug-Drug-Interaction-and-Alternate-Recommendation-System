@@ -1,21 +1,27 @@
-import { Flex, Heading, Button } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { Navbar, Nav, Container, Offcanvas, Button, ListGroup} from "react-bootstrap";
+import { List as MenuIcon, House, BoxArrowRight, Calendar, Repeat, HeartPulse } from "react-bootstrap-icons";
 import { auth, db } from "../../Authentication/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardLayout() {
     const [userDetails, setUserDetails] = useState(null);
+    const [showSidebar, setShowSidebar] = useState(false);
+    const navigate = useNavigate();
+
     const fetchUserData = async () => {
         auth.onAuthStateChanged(async (user) => {
-            console.log(user);
-
-            const docRef = doc(db, "Users", user.uid);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                setUserDetails(docSnap.data());
-                console.log(docSnap.data());
-            } else {
-                console.log("User is not logged in");
+            if (user) {
+                try {
+                    const docRef = doc(db, "Users", user.uid);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        setUserDetails(docSnap.data());
+                    }
+                } catch (error) {
+                    console.error("Error fetching user details:", error);
+                }
             }
         });
     };
@@ -27,47 +33,128 @@ export default function DashboardLayout() {
     async function handleLogout() {
         try {
             await auth.signOut();
-            window.location.href = "/login";
-            console.log("User logged out successfully!");
+            navigate("/landingpage");
         } catch (error) {
             console.error("Error logging out:", error.message);
         }
     }
 
-    return (
-        <Flex as="nav" p="4" bg="black" color="white" justifyContent="space-between" alignItems="center">
-            <Heading size="md">My App</Heading>
-            <Flex gap="4">
-                <Button bg="black" onClick={() => console.log("Home clicked")}>Home</Button>
-                <Button bg="black" onClick={handleLogout}>Logout</Button>
-            </Flex>
-        </Flex>
-    )
-}
+    const SidebarMenuItem = ({ icon, text, onClick }) => (
+        <ListGroup.Item
+            action
+            onClick={onClick}
+            className="d-flex align-items-center"
+        >
+            {React.cloneElement(icon, { className: "me-3" })}
+            {text}
+        </ListGroup.Item>
+    );
 
-// return (
-//     <div>
-//         {userDetails ? (
-//             <>
-//                 <div style={{ display: "flex", justifyContent: "center" }}>
-//                     <img
-//                         src={userDetails.photo}
-//                         width={"40%"}
-//                         style={{ borderRadius: "50%" }}
-//                     />
-//                 </div>
-//                 <h3>Welcome {userDetails.firstName}</h3>
-//                 <div>
-//                     <p>Email: {userDetails.email}</p>
-//                     <p>First Name: {userDetails.firstName}</p>
-//                     <p>Last Name: {userDetails.lastName}</p>
-//                 </div>
-//                 <button className="btn btn-primary" onClick={handleLogout}>
-//                     Logout
-//                 </button>
-//             </>
-//         ) : (
-//             <p>Loading...</p>
-//         )}
-//     </div>
-// );
+    return (
+        <>
+            <Navbar
+                bg="dark"
+                variant="dark"
+                expand="lg"
+                className="mb-3"
+            >
+                <Container fluid>
+                    <div className="d-flex align-items-center">
+                        <Button
+                            variant="outline-light"
+                            onClick={() => setShowSidebar(true)}
+                            className="me-3"
+                        >
+                            <MenuIcon />
+                        </Button>
+                        <Navbar.Brand href="#home">Health Companion</Navbar.Brand>
+                    </div>
+
+                    <Nav className="ms-auto align-items-center">
+                        {userDetails && (
+                            <div
+                                className="rounded-circle bg-light text-dark me-3 d-flex align-items-center justify-content-center"
+                                style={{
+                                    width: '35px',
+                                    height: '35px',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {userDetails.name ? userDetails.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                        )}
+                        <Nav.Link onClick={() => navigate("/profile")}>
+                            <House className="me-1" /> Home
+                        </Nav.Link>
+                        <Nav.Link onClick={handleLogout} className="text-danger">
+                            <BoxArrowRight className="me-1" /> Logout
+                        </Nav.Link>
+                    </Nav>
+                </Container>
+            </Navbar>
+
+            <Offcanvas
+                show={showSidebar}
+                onHide={() => setShowSidebar(false)}
+                placement="start"
+            >
+                <Offcanvas.Header closeButton>
+                    <Offcanvas.Title>
+                        <div className="d-flex align-items-center">
+                            <div
+                                className="rounded-circle bg-primary text-white me-3 d-flex align-items-center justify-content-center"
+                                style={{
+                                    width: '50px',
+                                    height: '50px',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {userDetails?.name ? userDetails.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                            <div>
+                                <h5 className="mb-0">{userDetails?.name || "User"}</h5>
+                                <small className="text-muted">{userDetails?.email || ""}</small>
+                            </div>
+                        </div>
+                    </Offcanvas.Title>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                    <ListGroup variant="flush">
+                        <SidebarMenuItem
+                            icon={<Calendar />}
+                            text="Appointments"
+                            onClick={() => {
+                                navigate("/appointments");
+                                setShowSidebar(false);
+                            }}
+                        />
+                        <SidebarMenuItem
+                            icon={<Calendar />}
+                            text="Medicines"
+                            onClick={() => {
+                                navigate("/medicines");
+                                setShowSidebar(false);
+                            }}
+                        />
+                        <SidebarMenuItem
+                            icon={<Repeat />}
+                            text="Drug Interactions"
+                            onClick={() => {
+                                navigate("/interactions");
+                                setShowSidebar(false);
+                            }}
+                        />
+                        <SidebarMenuItem
+                            icon={<HeartPulse />}
+                            text="Alternative Treatments"
+                            onClick={() => {
+                                navigate("/alternatives");
+                                setShowSidebar(false);
+                            }}
+                        />
+                    </ListGroup>
+                </Offcanvas.Body>
+            </Offcanvas>
+        </>
+    );
+}
