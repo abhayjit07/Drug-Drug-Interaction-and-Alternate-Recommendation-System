@@ -14,6 +14,7 @@
 import React, { useEffect } from "react";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap.bundle";
+// import 'bootstrap/dist/css/bootstrap.min.css';
 import LandingPage from './components/LandingPage/LandingPage';
 import "./App.css";
 import {
@@ -32,7 +33,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Profile from "./components/Dashboard/profile";
 import { useState } from "react";
 import { auth } from "./components/Authentication/firebase";
-// import Appointments from "./components/Appointments/Appointments";
+import Appointments from "./components/Appointments/Appointments";
 
 function App() {
   const [user, setUser] = useState();
@@ -55,7 +56,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<SignUp />} />
               <Route path="/profile" element={<Profile />} />
-              {/* <Route path="/appointments" element={<Appointments />} /> */}
+              <Route path="/appointments" element={<Appointments />} />
             </Routes>
             <ToastContainer />
           </div>
