@@ -4,10 +4,14 @@ import { onAuthStateChanged } from 'firebase/auth';
 import axios from 'axios';
 import { auth } from '../Authentication/firebase';
 import DashboardLayout from '../Dashboard/dashboard/DashboardLayout';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
+
 
 const Medicines = () => {
     const [user, setUser] = useState(null);
     const [activeTab, setActiveTab] = useState('medicationList');
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [medicationsOnSelectedDate, setMedicationsOnSelectedDate] = useState([]);
     const [medications, setMedications] = useState([]);
     const [newMedication, setNewMedication] = useState({
         name: '',
@@ -57,6 +61,18 @@ const Medicines = () => {
 
         return () => unsubscribe();
     }, []);
+
+       // Filter medications for selected date
+       useEffect(() => {
+        if (medications.length > 0) {
+            const formattedSelectedDate = format(selectedDate, 'yyyy-MM-dd');
+            const filteredMedications = medications.filter(med => 
+                (med.startDate <= formattedSelectedDate) && 
+                (!med.endDate || med.endDate >= formattedSelectedDate)
+            );
+            setMedicationsOnSelectedDate(filteredMedications);
+        }
+    }, [selectedDate, medications]);
 
     const handleAddMedication = async () => {
         if (!user) {
@@ -273,11 +289,93 @@ const Medicines = () => {
                     </Container>
                 )}
 
-
-                {activeTab === 'calendarView' && (
-                    <div className="mt-3 text-center">
-                        <p>Calendar View coming soon!</p>
-                    </div>
+{activeTab === 'calendarView' && (
+                    <Container className="mt-3">
+                        <Row>
+                            <Col md={8}>
+                                <Card>
+                                    <Card.Header>Medication Calendar</Card.Header>
+                                    <Card.Body>
+                                        <div className="calendar-container">
+                                            <div className="calendar-header">
+                                                <Button 
+                                                    variant="outline-secondary" 
+                                                    onClick={() => {
+                                                        const prevMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1);
+                                                        setSelectedDate(prevMonth);
+                                                    }}
+                                                >
+                                                    &lt;
+                                                </Button>
+                                                <h4>{format(selectedDate, 'MMMM yyyy')}</h4>
+                                                <Button 
+                                                    variant="outline-secondary" 
+                                                    onClick={() => {
+                                                        const nextMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1);
+                                                        setSelectedDate(nextMonth);
+                                                    }}
+                                                >
+                                                    &gt;
+                                                </Button>
+                                            </div>
+                                            <div className="calendar-grid">
+                                                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                                                    <div key={day} className="calendar-day-header">{day}</div>
+                                                ))}
+                                                {eachDayOfInterval({
+                                                    start: startOfMonth(selectedDate),
+                                                    end: endOfMonth(selectedDate)
+                                                }).map(date => {
+                                                    const formattedDate = format(date, 'yyyy-MM-dd');
+                                                    const hasMedications = medications.some(med => 
+                                                        med.startDate <= formattedDate && 
+                                                        (!med.endDate || med.endDate >= formattedDate)
+                                                    );
+                                                    return (
+                                                        <div 
+                                                            key={date.toISOString()}
+                                                            className={`calendar-day ${
+                                                                format(date, 'M') !== format(selectedDate, 'M') ? 'calendar-day-disabled' : ''
+                                                            } ${hasMedications ? 'calendar-day-has-medication' : ''}`}
+                                                            onClick={() => {
+                                                                if (format(date, 'M') === format(selectedDate, 'M')) {
+                                                                    setSelectedDate(date);
+                                                                }
+                                                            }}
+                                                        >
+                                                            {format(date, 'd')}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                            <Col md={4}>
+                                <Card>
+                                    <Card.Header>Medications for {format(selectedDate, 'M/d/yyyy')}</Card.Header>
+                                    <Card.Body>
+                                        {medicationsOnSelectedDate.length === 0 ? (
+                                            <p className="text-center">No medications scheduled</p>
+                                        ) : (
+                                            medicationsOnSelectedDate.map((med, index) => (
+                                                <Card key={index} className="mb-2">
+                                                    <Card.Body>
+                                                        <Card.Title>{med.name}</Card.Title>
+                                                        <Card.Text>
+                                                            <strong>Dosage:</strong> {med.dosage}<br />
+                                                            <strong>Frequency:</strong> {med.frequency}
+                                                        </Card.Text>
+                                                    </Card.Body>
+                                                </Card>
+                                            ))
+                                        )}
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Container>
                 )}
             </Container>
         </>

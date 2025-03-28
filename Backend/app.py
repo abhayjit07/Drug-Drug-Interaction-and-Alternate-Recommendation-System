@@ -20,12 +20,8 @@ firebase_config = {
 # Initialize Firebase Admin SDK
 try:
     cred = credentials.Certificate('./major-project.json')
-    print("Firebase Credentials loaded successfully")
-    print("Project ID:", cred.project_id)
     firebase_admin.initialize_app(cred)
 except Exception as e:
-    print("Error initializing Firebase Admin:")
-    print(traceback.format_exc())
     raise
 
 # Initialize Flask app
