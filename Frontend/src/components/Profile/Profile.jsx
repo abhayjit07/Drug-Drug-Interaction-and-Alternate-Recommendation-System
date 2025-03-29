@@ -22,8 +22,6 @@ export default function UserPreferences() {
     height: "",
     weight: "",
     location: "",
-    language: "English",
-    timezone: "",
     
     // Medical Information
     pregnancyStatus: "not_applicable",
@@ -250,40 +248,7 @@ export default function UserPreferences() {
                   </Col>
                 </Row>
 
-                <Row className="mb-3">
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Language Preference</Form.Label>
-                      <Form.Select
-                        name="language"
-                        value={userProfile.language}
-                        onChange={handleChange}
-                      >
-                        <option value="English">English</option>
-                        <option value="Spanish">Spanish</option>
-                        <option value="French">French</option>
-                        <option value="German">German</option>
-                        <option value="Chinese">Chinese</option>
-                        <option value="Japanese">Japanese</option>
-                        <option value="Arabic">Arabic</option>
-                        <option value="Russian">Russian</option>
-                        <option value="Hindi">Hindi</option>
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Time Zone</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="timezone"
-                        placeholder="e.g., GMT+1, EST"
-                        value={userProfile.timezone}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
+               
               </Tab>
 
               <Tab eventKey="medical" title="Medical Information">
@@ -527,8 +492,7 @@ export default function UserPreferences() {
         <Card.Footer className="text-muted">
           <small>
             Your health information is used to provide personalized medication
-            interaction alerts. See our{" "}
-            <a href="/privacy-policy">Privacy Policy</a> for details.
+            interaction alerts.
           </small>
         </Card.Footer>
       </Card>

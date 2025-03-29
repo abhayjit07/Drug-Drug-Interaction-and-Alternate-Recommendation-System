@@ -156,14 +156,6 @@ export default function DashboardLayout() {
                                     setShowSidebar(false);
                                 }}
                             />
-                            <SidebarMenuItem
-                                icon={<HeartPulse />}
-                                text="Alternative Treatments"
-                                onClick={() => {
-                                    navigate("/alternatives");
-                                    setShowSidebar(false);
-                                }}
-                            />
                         </ListGroup>
                     </div>
                     
