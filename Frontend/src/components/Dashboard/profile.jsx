@@ -70,7 +70,7 @@ import React, { useEffect, useState } from "react";
 
 
 
-export default function Profile() {
+export default function MainPage() {
 
 
   return (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container, Offcanvas, Button, ListGroup} from "react-bootstrap";
-import { List as MenuIcon, House, BoxArrowRight, Calendar, Repeat, HeartPulse } from "react-bootstrap-icons";
+import { List as MenuIcon, House, BoxArrowRight, Calendar, Repeat, HeartPulse, Gear } from "react-bootstrap-icons";
 import { auth, db } from "../../Authentication/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +38,11 @@ export default function DashboardLayout() {
             console.error("Error logging out:", error.message);
         }
     }
+
+    const navigateToProfile = () => {
+        navigate("/profile");
+        setShowSidebar(false);
+    };
 
     const SidebarMenuItem = ({ icon, text, onClick }) => (
         <ListGroup.Item
@@ -77,8 +82,10 @@ export default function DashboardLayout() {
                                 style={{
                                     width: '35px',
                                     height: '35px',
-                                    fontWeight: 'bold'
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer'
                                 }}
+                                onClick={navigateToProfile}
                             >
                                 {userDetails.name ? userDetails.name.charAt(0).toUpperCase() : 'U'}
                             </div>
@@ -100,7 +107,11 @@ export default function DashboardLayout() {
             >
                 <Offcanvas.Header closeButton>
                     <Offcanvas.Title>
-                        <div className="d-flex align-items-center">
+                        <div 
+                            className="d-flex align-items-center" 
+                            style={{ cursor: 'pointer' }}
+                            onClick={navigateToProfile}
+                        >
                             <div
                                 className="rounded-circle bg-primary text-white me-3 d-flex align-items-center justify-content-center"
                                 style={{
@@ -118,41 +129,54 @@ export default function DashboardLayout() {
                         </div>
                     </Offcanvas.Title>
                 </Offcanvas.Header>
-                <Offcanvas.Body>
-                    <ListGroup variant="flush">
-                        <SidebarMenuItem
-                            icon={<Calendar />}
-                            text="Appointments"
-                            onClick={() => {
-                                navigate("/appointments");
-                                setShowSidebar(false);
-                            }}
-                        />
-                        <SidebarMenuItem
-                            icon={<Calendar />}
-                            text="Medicines"
-                            onClick={() => {
-                                navigate("/medicines");
-                                setShowSidebar(false);
-                            }}
-                        />
-                        <SidebarMenuItem
-                            icon={<Repeat />}
-                            text="Drug Interactions"
-                            onClick={() => {
-                                navigate("/interactions");
-                                setShowSidebar(false);
-                            }}
-                        />
-                        <SidebarMenuItem
-                            icon={<HeartPulse />}
-                            text="Alternative Treatments"
-                            onClick={() => {
-                                navigate("/alternatives");
-                                setShowSidebar(false);
-                            }}
-                        />
-                    </ListGroup>
+                <Offcanvas.Body className="d-flex flex-column">
+                    <div>
+                        <ListGroup variant="flush">
+                            <SidebarMenuItem
+                                icon={<Calendar />}
+                                text="Appointments"
+                                onClick={() => {
+                                    navigate("/appointments");
+                                    setShowSidebar(false);
+                                }}
+                            />
+                            <SidebarMenuItem
+                                icon={<Calendar />}
+                                text="Medicines"
+                                onClick={() => {
+                                    navigate("/medicines");
+                                    setShowSidebar(false);
+                                }}
+                            />
+                            <SidebarMenuItem
+                                icon={<Repeat />}
+                                text="Drug Interactions"
+                                onClick={() => {
+                                    navigate("/interactions");
+                                    setShowSidebar(false);
+                                }}
+                            />
+                            <SidebarMenuItem
+                                icon={<HeartPulse />}
+                                text="Alternative Treatments"
+                                onClick={() => {
+                                    navigate("/alternatives");
+                                    setShowSidebar(false);
+                                }}
+                            />
+                        </ListGroup>
+                    </div>
+                    
+                    <div className="mt-auto">
+                        <hr className="my-3" />
+                        <ListGroup variant="flush">
+                            <SidebarMenuItem
+                                icon={<Gear />}
+                                text="Profile"
+                                onClick={navigateToProfile}
+                            />
+                        </ListGroup>
+                    </div>
                 </Offcanvas.Body>
             </Offcanvas>
         </>

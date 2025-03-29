@@ -30,11 +30,12 @@ import SignUp from "./components/Authentication/register";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Profile from "./components/Dashboard/profile";
+import UserPreferences from "./components/Profile/Profile";
 import { useState } from "react";
 import { auth } from "./components/Authentication/firebase";
 import Appointments from "./components/Appointments/Appointments";
 import Medicines from "./components/Medicines/Medicines";
+import MainPage from "./components/Dashboard/profile";
 
 function App() {
   const [user, setUser] = useState();
@@ -52,13 +53,14 @@ function App() {
               <Route path = "/landingpage" element = {<LandingPage />} />
               <Route
                 path="/"
-                element={user ? <Navigate to="/profile" /> : <Login />}
+                element={user ? <Navigate to="/mainPage" /> : <Login />}
               />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<SignUp />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/mainPage" element={<MainPage />} />
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/medicines" element={<Medicines />} />
+              <Route path="/profile" element={<UserPreferences />} />
             </Routes>
             <ToastContainer />
           </div>
