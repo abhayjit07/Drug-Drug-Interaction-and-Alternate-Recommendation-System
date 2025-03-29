@@ -1,58 +1,95 @@
-import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react"
-import { useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react";
+import { Box, Button, Flex, Heading, Text, VStack, Spinner } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../Authentication/firebase";
 
 export default function Appointments() {
-    const upcomingAppointments = [
-        {
-            id: 1,
-            doctor: "Dr. John Doe",
-            date: "23rd May",
-            time: "2:00 PM",
-            location: "123 Main St, New York, NY",
-        },
-        {
-            id: 2,
-            doctor: "Dr. Jane Smith",
-            date: "25th May",
-            time: "10:00 AM",
-            location: "456 Elm St, New York, NY",
-        },
-        {
-            id: 3,
-            doctor: "Dr. Michael Johnson",
-            date: "27th May",
-            time: "3:00 PM",
-            location: "789 Oak St, New York, NY",
-        },
-    ]
-
+    const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [user, setUser] = useState(null);
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        // Listen for authentication state changes
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+                try {
+                    setLoading(true);
+                    // Get the Firebase ID token
+                    const token = await currentUser.getIdToken();
+
+                    // Fetch appointments
+                    const response = await axios.get('http://127.0.0.1:5000/appointments', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        withCredentials: true,
+                    });
+
+                    setAppointments(response.data);
+                    setLoading(false);
+                } catch (error) {
+                    setError(error.message);
+                    setLoading(false);
+                }
+            } else {
+                setUser(null);
+                setAppointments([]);
+                setLoading(false);
+            }
+        });
+
+        // Cleanup function to unsubscribe when component unmounts
+        return () => unsubscribe();
+    }, []);
+
+    const latestTwoAppointments = appointments.slice(0, 2);
+
     return (
-        <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
+        <Box p={5} borderWidth="1px" borderRadius="lg" overflow="hidden">
             <Box p="4" borderBottomWidth="1px">
-                <Heading size="md">Upcoming Appointments</Heading>
-                <Text color="gray.600" mt="1">Stay on top of your schedule</Text>
+                <Heading size="md"> Upcoming Appointments </Heading>
+                <Text color="gray.600" mt="1">
+                    Stay on top of your schedule
+                </Text>
             </Box>
             <Box p="4">
-                <VStack spacing="4" align="stretch">
-                    {upcomingAppointments.map((appointment) => (
-                        <Flex
-                            key={appointment.id}
-                            alignItems="center"
-                            justifyContent="space-between"
-                            p="3"
-                            borderWidth="1px"
-                            borderRadius="lg"
-                        >
-                            <Box>
-                                <Text fontWeight="medium">{appointment.doctor}</Text>
-                                <Text fontSize="sm" color="gray.500">{appointment.date} at {appointment.time}</Text>
-                                <Text fontSize="sm" color="gray.500">{appointment.location}</Text>
-                            </Box>
+                <VStack spacing={4} align="stretch">
+                    <Heading size="lg"></Heading>
+                    {loading ? (
+                        <Flex justify="center" p={5}>
+                            <Spinner size="xl" />
                         </Flex>
-                    ))}
+                    ) : error ? (
+                        <Box p={4} bg="red.100" color="red.800" borderRadius="md">
+                            <Text>Error: {error}</Text>
+                        </Box>
+                    ) : appointments.length === 0 ? (
+                        <Box p={4} bg="gray.100" borderRadius="md">
+                            <Text>No upcoming appointments found.</Text>
+                        </Box>
+                    ) : (
+                        <VStack spacing={4} align="stretch">
+                            {latestTwoAppointments.map((appointment) => (
+                                <Box
+                                    key={appointment.id}
+                                    p={4}
+                                    borderWidth="1px"
+                                    borderRadius="md"
+                                    shadow="sm"
+                                >
+                                    <Text fontWeight="large">{appointment.title}</Text>
+                                    {appointment.date && <Text fontSize="sm" color="gray.500">Date: {appointment.date}</Text>}
+                                    {appointment.description && <Text fontSize="sm" color="gray.500">{appointment.description}</Text>}
+                                </Box>
+                            ))}
+                        </VStack>
+                    )}
                 </VStack>
             </Box>
             <Box p="4" borderTopWidth="1px">
@@ -61,7 +98,5 @@ export default function Appointments() {
                 </Button>
             </Box>
         </Box>
-    )
+    );
 }
-
-

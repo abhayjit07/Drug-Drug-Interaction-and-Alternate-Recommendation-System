@@ -127,6 +127,105 @@ def verify_firebase_token(request):
         print(traceback.format_exc())
         return None
 
+
+@app.route('/appointments', methods=['GET'])
+def get_appointments():
+    try:
+        # Verify user token first
+        user_id = verify_firebase_token(request)
+        if not user_id:
+            print("Unauthorized access attempt")
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        # Attempt to get database connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Execute query
+        cursor.execute('SELECT * FROM appointments WHERE user_id = ?', (user_id,))
+        appointments = cursor.fetchall()
+        
+        # Convert to list of dictionaries
+        appointments_list = []
+        for appointment in appointments:
+            appointments_list.append(dict(zip([column[0] for column in cursor.description], appointment)))
+        
+        return jsonify(appointments_list), 200
+    
+    except sqlite3.Error as e:
+        print(f"SQLite Error in get_appointments: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+    
+    except Exception as e:
+        print(f"Unexpected error in get_appointments: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+    
+    finally:
+        # Ensure connection is closed
+        if 'conn' in locals():
+            conn.close()
+
+# Appointments creation route with detailed error handling
+@app.route('/addappointments', methods=['POST'])
+def create_appointment():
+    try:
+        # Verify user token first
+        user_id = verify_firebase_token(request)
+        if not user_id:
+            print("Unauthorized access attempt")
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        # Get request data
+        data = request.json
+        print("Received appointment data:", data)
+        
+        # Validate required fields
+        required_fields = ['title', 'date', 'time']
+        for field in required_fields:
+            if field not in data:
+                print(f"Missing required field: {field}")
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+        
+        # Attempt to get database connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Insert appointment
+        cursor.execute('''
+            INSERT INTO appointments 
+            (user_id, title, date, time, location, description) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (
+            user_id, 
+            data['title'], 
+            data['date'], 
+            data['time'], 
+            data.get('location'), 
+            data.get('description')
+        ))
+        
+        # Commit and get last row id
+        conn.commit()
+        appointment_id = cursor.lastrowid
+        
+        return jsonify({"id": appointment_id}), 201
+    
+    except sqlite3.Error as e:
+        print(f"SQLite Error in create_appointment: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+    
+    except Exception as e:
+        print(f"Unexpected error in create_appointment: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+    
+    finally:
+        # Ensure connection is closed
+        if 'conn' in locals():
+            conn.close()
 # Medications route with detailed error handling
 @app.route('/medications', methods=['GET'])
 def get_medications():

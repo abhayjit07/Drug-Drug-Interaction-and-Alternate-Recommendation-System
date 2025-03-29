@@ -21,16 +21,7 @@ export default function Reminders() {
             startDate: "3 days ago",
             endDate: "3 days later",
         },
-        {
-            id: 3,
-            medicine: "Metformin",
-            time: "11:00 AM",
-            quantity: "low",
-            startDate: "5 days ago",
-            endDate: "5 days later",
-        },
     ]
-
     return (
         <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
             <Box p="4" borderBottomWidth="1px">

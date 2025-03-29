@@ -90,7 +90,7 @@ export default function DashboardLayout() {
                                 {userDetails.name ? userDetails.name.charAt(0).toUpperCase() : 'U'}
                             </div>
                         )}
-                        <Nav.Link onClick={() => navigate("/profile")}>
+                        <Nav.Link onClick={() => navigate("/mainPage")}>
                             <House className="me-1" /> Home
                         </Nav.Link>
                         <Nav.Link onClick={handleLogout} className="text-danger">
