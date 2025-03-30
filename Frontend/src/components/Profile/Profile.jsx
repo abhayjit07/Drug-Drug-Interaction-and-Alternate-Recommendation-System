@@ -37,10 +37,6 @@ export default function UserPreferences() {
     caffeineConsumption: "low",
     exerciseFrequency: "moderate",
     
-    // Healthcare Providers
-    primaryCareProvider: "",
-    preferredPharmacy: "",
-    emergencyContact: "",
     
     // Additional Information
     previousAdverseReactions: ""
@@ -129,7 +125,7 @@ export default function UserPreferences() {
     <DashboardLayout />
     <Container className="py-4">
       <Card className="shadow-sm">
-        <Card.Header as="h4" className="bg-primary text-white">
+        <Card.Header as="h4" className="bg-dark text-white">
           User Preferences
         </Card.Header>
         <Card.Body>
@@ -247,8 +243,6 @@ export default function UserPreferences() {
                     </Form.Group>
                   </Col>
                 </Row>
-
-               
               </Tab>
 
               <Tab eventKey="medical" title="Medical Information">
@@ -412,7 +406,7 @@ export default function UserPreferences() {
                   </Col>
                 </Row>
 
-                <Form.Group className="mb-3">
+                {/* <Form.Group className="mb-3">
                   <Form.Label>Dietary Restrictions</Form.Label>
                   <Form.Control
                     as="textarea"
@@ -422,42 +416,7 @@ export default function UserPreferences() {
                     value={userProfile.dietaryRestrictions}
                     onChange={handleChange}
                   />
-                </Form.Group>
-              </Tab>
-
-              <Tab eventKey="healthcare" title="Healthcare Providers">
-                <Form.Group className="mb-3">
-                  <Form.Label>Primary Care Provider</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="primaryCareProvider"
-                    placeholder="Doctor's name and contact information"
-                    value={userProfile.primaryCareProvider}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Preferred Pharmacy</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="preferredPharmacy"
-                    placeholder="Pharmacy name and location"
-                    value={userProfile.preferredPharmacy}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Emergency Contact</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="emergencyContact"
-                    placeholder="Name and phone number"
-                    value={userProfile.emergencyContact}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
+                </Form.Group> */}
               </Tab>
             </Tabs>
 

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { auth } from "./firebase";
 import { toast } from "react-toastify";
 import SignInwithGoogle from "./signInWIthGoogle";
+import Navbar from "../LandingPage/Navbar";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -26,6 +27,7 @@ function Login() {
   };
 
   return (
+    <>
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card shadow-sm" style={{ width: '350px' }}>
         <div className="card-body p-4">
@@ -93,6 +95,7 @@ function Login() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
