@@ -8,6 +8,11 @@ from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, auth, initialize_app, firestore
 
+# Import from our new modules instead of circular imports
+from database import initialize_database, get_db_connection
+from interaction import analyze_medication_interactions, check_medication_interaction
+from config import MEDICATION_INTERACTIONS
+
 # Firebase Configuration
 firebase_config = {
     "apiKey": "AIzaSyBJsZVFFqbhTCo4bZYVyI7qbRGpVBOB_fk",
@@ -28,130 +33,6 @@ except Exception as e:
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-
-# Sample medication interaction database (replace with your actual model)
-# This is a simplified example - you would integrate with a more comprehensive drug interaction database
-MEDICATION_INTERACTIONS = {
-    ('amoxicillin', 'ibuprofen'): {
-        'severity': 'mild',
-        'description': 'May increase the risk of bleeding.'
-    },
-    ('lisinopril', 'potassium'): {
-        'severity': 'severe',
-        'description': 'May cause dangerous increase in potassium levels.'
-    },
-    ('warfarin', 'aspirin'): {
-        'severity': 'severe',
-        'description': 'Increased risk of bleeding.'
-    },
-    ('simvastatin', 'grapefruit'): {
-        'severity': 'moderate',
-        'description': 'May increase statin side effects.'
-    },
-    # Add more interactions as needed
-}
-
-def initialize_database(db_path='./Database/appointments.db'):
-    """
-    Comprehensive database initialization function
-    """
-    try:
-        # Ensure the directory exists
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        
-        # Create a new database connection
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        
-        # Create appointments table
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS appointments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT NOT NULL,
-            title TEXT NOT NULL,
-            date TEXT NOT NULL,
-            time TEXT NOT NULL,
-            location TEXT,
-            description TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-        ''')
-        
-        # Create updated medications table with times instead of frequency
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS medications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT NOT NULL,
-            name TEXT NOT NULL,
-            dosage TEXT NOT NULL,
-            times TEXT NOT NULL,
-            medical_condition TEXT,
-            start_date TEXT,
-            end_date TEXT,
-            notes TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-        ''')
-        
-        # Create medication interactions table to store detected interactions
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS medication_interactions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT NOT NULL,
-            medication1_id INTEGER NOT NULL,
-            medication2_id INTEGER NOT NULL,
-            severity TEXT NOT NULL,
-            description TEXT NOT NULL,
-            FOREIGN KEY (medication1_id) REFERENCES medications (id),
-            FOREIGN KEY (medication2_id) REFERENCES medications (id)
-        )
-        ''')
-        
-        # Create indexes for faster user-specific queries
-        cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_appointments_user_id 
-        ON appointments(user_id)
-        ''')
-        
-        cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_medications_user_id 
-        ON medications(user_id)
-        ''')
-        
-        cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_medication_interactions_user_id 
-        ON medication_interactions(user_id)
-        ''')
-        
-        # Commit changes and close connection
-        conn.commit()
-        conn.close()
-        
-        print(f"Database initialized successfully at {db_path}")
-        return True
-    
-    except Exception as e:
-        print(f"Database initialization error: {e}")
-        print(traceback.format_exc())
-        return False
-
-def get_db_connection(db_path='./Database/appointments.db'):
-    """
-    Robust database connection function
-    """
-    try:
-        # Ensure database directory exists
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        
-        # Attempt to connect to the database
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
-    
-    except Exception as e:
-        print(f"Database connection error: {e}")
-        print(traceback.format_exc())
-        raise
 
 # Initialize database on startup
 initialize_database()
@@ -271,102 +152,6 @@ def create_appointment():
         # Ensure connection is closed
         if 'conn' in locals():
             conn.close()
-
-# Date utilities for checking overlapping medications
-def is_date_range_overlap(start1, end1, start2, end2):
-    """Check if two date ranges overlap"""
-    # Handle empty end dates (ongoing medications)
-    if not end1:
-        end1 = '9999-12-31'  # Far future date
-    if not end2:
-        end2 = '9999-12-31'  # Far future date
-    
-    # Return true if there's overlap
-    return start1 <= end2 and start2 <= end1
-
-def find_overlapping_medications(user_id):
-    """Find all medications with overlapping date ranges for a user"""
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        # Get all medications for the user
-        cursor.execute('SELECT * FROM medications WHERE user_id = ?', (user_id,))
-        medications = [dict(medication) for medication in cursor.fetchall()]
-        
-        # Find overlapping pairs
-        overlapping_pairs = []
-        for i in range(len(medications)):
-            for j in range(i+1, len(medications)):
-                med1 = medications[i]
-                med2 = medications[j]
-                
-                # Check if date ranges overlap
-                if (med1['start_date'] and med2['start_date'] and 
-                    is_date_range_overlap(
-                        med1['start_date'], med1['end_date'],
-                        med2['start_date'], med2['end_date']
-                    )):
-                    overlapping_pairs.append((med1, med2))
-        
-        return overlapping_pairs
-    
-    except Exception as e:
-        print(f"Error finding overlapping medications: {e}")
-        print(traceback.format_exc())
-        return []
-    
-    finally:
-        if 'conn' in locals():
-            conn.close()
-
-def check_medication_interaction(med1_name, med2_name):
-    """Check if two medications have a known interaction"""
-    # Normalize medication names for comparison (lowercase)
-    med1_name_lower = med1_name.lower()
-    med2_name_lower = med2_name.lower()
-    
-    # Check both possible orders of the medication pair
-    if (med1_name_lower, med2_name_lower) in MEDICATION_INTERACTIONS:
-        return MEDICATION_INTERACTIONS[(med1_name_lower, med2_name_lower)]
-    elif (med2_name_lower, med1_name_lower) in MEDICATION_INTERACTIONS:
-        return MEDICATION_INTERACTIONS[(med2_name_lower, med1_name_lower)]
-    
-    # No interaction found
-    return None
-
-def analyze_medication_interactions(user_id):
-    """Analyze all medication interactions for a user"""
-    try:
-        # Find all overlapping medications
-        overlapping_pairs = find_overlapping_medications(user_id)
-        
-        # Check each pair for interactions
-        interactions = []
-        for med1, med2 in overlapping_pairs:
-            interaction = check_medication_interaction(med1['name'], med2['name'])
-            if interaction:
-                interactions.append({
-                    'medication1': {
-                        'id': med1['id'],
-                        'name': med1['name'],
-                        'dosage': med1['dosage']
-                    },
-                    'medication2': {
-                        'id': med2['id'],
-                        'name': med2['name'],
-                        'dosage': med2['dosage']
-                    },
-                    'severity': interaction['severity'],
-                    'description': interaction['description']
-                })
-        
-        return interactions
-    
-    except Exception as e:
-        print(f"Error analyzing medication interactions: {e}")
-        print(traceback.format_exc())
-        return []
 
 # New endpoint to check medication interactions
 @app.route('/medication-interactions', methods=['GET'])
