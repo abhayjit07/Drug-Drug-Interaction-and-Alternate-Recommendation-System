@@ -54,10 +54,10 @@ const Navbar = () => {
       </div> */}
 
       <div className="navbar-links-container">
-        <a href="">Home</a>
-        <a href="">Features</a>
-        <a href="">About</a>
-        <a href="">Contact</a>
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
         <button className="primary-button" onClick={handleSignIn}>Sign In</button>
       </div>
       <div className="navbar-menu-container">

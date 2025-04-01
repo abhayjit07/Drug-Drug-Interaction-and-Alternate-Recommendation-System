@@ -66,11 +66,12 @@ export default function DashboardLayout() {
                 <Container fluid>
                     <div className="d-flex align-items-center">
                         <Button
-                            variant="outline-light"
+                            variant="link"
                             onClick={() => setShowSidebar(true)}
                             className="me-3"
+                            size="lg"
                         >
-                            <MenuIcon />
+                            <MenuIcon color="white" />
                         </Button>
                         <Navbar.Brand href="#home">Health Companion</Navbar.Brand>
                     </div>
