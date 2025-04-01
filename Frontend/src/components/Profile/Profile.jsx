@@ -405,18 +405,6 @@ export default function UserPreferences() {
                     </Form.Group>
                   </Col>
                 </Row>
-
-                {/* <Form.Group className="mb-3">
-                  <Form.Label>Dietary Restrictions</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={2}
-                    name="dietaryRestrictions"
-                    placeholder="Vegetarian, vegan, gluten-free, or other restrictions"
-                    value={userProfile.dietaryRestrictions}
-                    onChange={handleChange}
-                  />
-                </Form.Group> */}
               </Tab>
             </Tabs>
 

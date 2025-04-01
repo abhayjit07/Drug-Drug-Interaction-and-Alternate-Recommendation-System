@@ -36,6 +36,7 @@ import { auth } from "./components/Authentication/firebase";
 import Appointments from "./components/Appointments/Appointments";
 import Medicines from "./components/Medicines/Medicines";
 import MainPage from "./components/Dashboard/profile";
+import MedicationManagement from "./components/InteractionTracker/InteractionTracker";
 
 function App() {
   const [user, setUser] = useState();
@@ -61,6 +62,7 @@ function App() {
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/medicines" element={<Medicines />} />
               <Route path="/profile" element={<UserPreferences />} />
+              <Route path="/interactions" element={<MedicationManagement />} />
             </Routes>
             <ToastContainer />
           </div>
