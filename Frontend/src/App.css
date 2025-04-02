@@ -72,10 +72,10 @@ nav {
 
 .home-banner-container {
   display: flex;
-  justify-content: center;
+  width: 100%;
+  justify-content: space-between;
   align-items: center;
-  padding: 3rem 10vw; 
-  gap: 10rem;
+  padding: 0 7rem;
 }
 
 .home-image-section {
@@ -143,9 +143,13 @@ nav {
 }
 
 .features-heading {
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  color: #333;
+  font-size: 3rem;
+  font-weight: 700;
+  margin-top: 4rem;
+  margin-bottom: 1rem;
+  color:#333;
+  text-align: center;
+
 }
 
 .features-container h3 {
@@ -239,35 +243,57 @@ nav {
 .footer-wrapper {
   margin: 6rem 0rem;
   display: flex;
-  margin-top: 10rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding: 2rem 5vw;
+  background-color: #f8f8f8;
+  border-top: 1px solid #e0e0e0;
 }
 .footer-logo-container {
   max-width: 110px;
 }
 .footer-icons {
-  margin-top: 2.5rem;
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
 }
 .footer-icons svg {
-  font-size: 1.5rem;
-  margin-right: 1.25rem;
+  font-size: 1.8rem;
   color: #585858;
+  transition: color 0.3s ease;
+  cursor: pointer;
 }
-
-.footer-section-two {
+.footer-icons svg:hover {
+  color: #fe9e0d;
+}
+.footer-section-one {
   flex: 1;
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.footer-section-two {
+  flex: 2;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2rem;
 }
 .footer-section-columns {
   display: flex;
   flex-direction: column;
-  min-width: 190px;
+  min-width: 150px;
 }
 .footer-section-columns span {
-  margin: 0.25rem 0rem;
+  margin: 0.5rem 0rem;
   font-weight: 600;
   color: #4c4c4c;
   cursor: pointer;
+  transition: color 0.3s ease;
+}
+.footer-section-columns span:hover {
+  color: #fe9e0d;
 }
 .testimonial-section-bottom {
   margin-top: 2rem;
@@ -349,6 +375,12 @@ nav {
   display: flex;
   align-items: center;
   font-weight: 600;
+}
+
+.about-container{
+  text-align: center;
+  padding: 0 5vw;
+  font-size: large;
 }
 
 @media (max-width: 1000px) {
@@ -452,13 +484,21 @@ nav {
   }
   .footer-wrapper {
     flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .footer-section-one {
+    align-items: center;
   }
   .footer-section-two {
-    flex-direction: column;
-    margin-top: 2rem;
+    justify-content: center;
+    gap: 1.5rem;
   }
   .footer-section-columns {
-    margin: 1rem 0rem;
+    align-items: center;
+  }
+  .footer-icons {
+    justify-content: center;
   }
   .App {
     max-width: 95vw;

@@ -17,6 +17,7 @@ export default function Appointments() {
         // Listen for authentication state changes
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
+                console.log(user);
                 setUser(currentUser);
                 try {
                     setLoading(true);
@@ -30,7 +31,7 @@ export default function Appointments() {
                         },
                         withCredentials: true,
                     });
-
+                    console.log("appointments data: ", response.data);
                     setAppointments(response.data);
                     setLoading(false);
                 } catch (error) {

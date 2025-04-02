@@ -7,7 +7,7 @@ const Features = () => {
     ];
 
     return (
-        <div className="features-section">
+        <div className="features-section"u id="features">
             <h2 className="features-heading">Features</h2>
             <div className="features-container">
                 {featureList.map((feature, index) => (
