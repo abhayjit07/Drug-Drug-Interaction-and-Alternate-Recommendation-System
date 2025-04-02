@@ -7,11 +7,16 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, auth, initialize_app, firestore
-
-# Import from our new modules instead of circular imports
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from database import initialize_database, get_db_connection
 from interaction import analyze_medication_interactions, check_medication_interaction
 from config import MEDICATION_INTERACTIONS
+from icalendar import Calendar, Event
+from datetime import datetime, timedelta
+import pytz
+import uuid
 
 # Firebase Configuration
 firebase_config = {
@@ -43,7 +48,6 @@ def verify_firebase_token(request):
     if not id_token:
         print("No Authorization token found")
         return None
-
     try:
         # Verify the Firebase ID token
         decoded_token = auth.verify_id_token(id_token.split('Bearer ')[1])
@@ -52,7 +56,97 @@ def verify_firebase_token(request):
         print(f"Token verification error: {e}")
         print(traceback.format_exc())
         return None
+   
+from icalendar import Calendar, Event
+from datetime import datetime, timedelta
+import pytz
+import uuid
+import smtplib
+import os
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+def send_email_notification(recipient_email, appointment_data):
+    # Email settings
+    sender_email = "singhabhayjit07@gmail.com"  
+    password = ""  
     
+    # Create message
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = recipient_email
+    message["Subject"] = f"Appointment: {appointment_data['title']}"
+    
+    # Email body
+    body = f"""
+    Dear User,
+    
+    Your appointment has been scheduled:
+    
+    Title: {appointment_data['title']}
+    Date: {appointment_data['date']}
+    Time: {appointment_data['time']}
+    Location: {appointment_data.get('location', 'N/A')}
+    Description: {appointment_data.get('description', 'N/A')}
+    
+    You'll find a calendar invitation attached that you can add to your calendar.
+    
+    Thank you for using our service.
+    """
+    
+    message.attach(MIMEText(body, "plain"))
+    
+    # Create the calendar event
+    cal = Calendar()
+    cal.add('prodid', '-//My Medical App//mxm.dk//')
+    cal.add('version', '2.0')
+    
+    event = Event()
+    event.add('summary', appointment_data['title'])
+    
+    # Parse date and time
+    date_str = appointment_data['date']
+    time_str = appointment_data['time']
+    
+    # Assuming date format is YYYY-MM-DD and time format is HH:MM
+    try:
+        start_datetime = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+        start_datetime = pytz.timezone('UTC').localize(start_datetime)  # Adjust for your timezone
+        
+        end_datetime = start_datetime + timedelta(hours=1)  # Default duration 1 hour
+        
+        event.add('dtstart', start_datetime)
+        event.add('dtend', end_datetime)
+        event.add('uid', str(uuid.uuid4()))
+        event.add('dtstamp', datetime.now(pytz.utc))
+        
+        if appointment_data.get('location'):
+            event.add('location', appointment_data['location'])
+        if appointment_data.get('description'):
+            event.add('description', appointment_data['description'])
+        
+        cal.add_component(event)  # Add event to calendar
+        
+        ics_attachment = MIMEText(cal.to_ical().decode('utf-8'), 'calendar')
+        ics_attachment.add_header('Content-Disposition', 'attachment', filename='appointment.ics')
+        message.attach(ics_attachment)
+        
+    except Exception as e:
+        print(f"Error creating calendar event: {e}")
+        return False
+    
+    # Send email
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:  # Using 'with' for automatic resource cleanup
+            server.starttls()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, recipient_email, message.as_string())
+        return True
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        return False
+
+
 
 @app.route('/appointments', methods=['GET'])
 def get_appointments():
@@ -135,8 +229,23 @@ def create_appointment():
         # Commit and get last row id
         conn.commit()
         appointment_id = cursor.lastrowid
+
+        # Get user email from Firestore
+        db = firestore.client()
+
+        user = auth.get_user(user_id)
+        print("User data:", user)
+        user_email = user.email
+        print("User email:", user_email)
         
-        return jsonify({"id": appointment_id}), 201
+        # Send email notification
+        if user_email:
+            send_email_notification(user_email, data)
+        
+        # Return response
+        return jsonify({"id": appointment_id, "email_sent": bool(user_email)}), 201
+        
+        # return jsonify({"id": appointment_id}), 201
     
     except sqlite3.Error as e:
         print(f"SQLite Error in create_appointment: {e}")
@@ -152,6 +261,10 @@ def create_appointment():
         # Ensure connection is closed
         if 'conn' in locals():
             conn.close()
+
+
+
+
 
 # New endpoint to check medication interactions
 @app.route('/medication-interactions', methods=['GET'])
