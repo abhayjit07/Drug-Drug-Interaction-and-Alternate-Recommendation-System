@@ -5,6 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../Authentication/firebase';
 import DashboardLayout from '../Dashboard/dashboard/DashboardLayout';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay } from 'date-fns';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaInfoCircle, FaTimesCircle, FaCheckCircle} from "react-icons/fa";
 
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -50,7 +51,7 @@ const Appointments = () => {
             },
             withCredentials: true,
           });
-
+          console.log("appointments data: ", response.data);
           setAppointments(response.data);
         } catch (error) {
           showToast(error.message, 'danger');
@@ -70,13 +71,13 @@ const Appointments = () => {
     const now = new Date();
     const filtered = appointments.filter(appointment => {
       const appointmentDate = new Date(appointment.date);
-      
+
       if (activeListTab === 'upcoming') {
         return appointmentDate >= now;
       } else if (activeListTab === 'completed') {
         return appointmentDate < now;
       }
-      
+
       return true;
     });
 
@@ -108,7 +109,7 @@ const Appointments = () => {
       });
 
       setAppointments(response.data);
-      
+
       // Reset form
       setCurrentAppointment({
         title: '',
@@ -120,7 +121,7 @@ const Appointments = () => {
 
       // Switch to appointment list tab
       setActiveMainTab('list');
-      
+
       showToast('Appointment Created Successfully');
     } catch (error) {
       showToast(error.message, 'danger');
@@ -130,7 +131,7 @@ const Appointments = () => {
   // Calendar related functions
   const getAppointmentsForDate = (date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
-    return appointments.filter(appointment => 
+    return appointments.filter(appointment =>
       appointment.date === formattedDate
     );
   };
@@ -140,12 +141,12 @@ const Appointments = () => {
     const monthEnd = endOfMonth(selectedDate);
     const startDate = monthStart;
     const endDate = monthEnd;
-    
+
     const dateArray = eachDayOfInterval({ start: startDate, end: endDate });
-    
+
     // Get what day of the week the month starts on (0 = Sunday, 1 = Monday, etc.)
     const startDay = getDay(monthStart);
-    
+
     // Add empty spots for days before the start of the month
     const blanks = [];
     for (let i = 0; i < startDay; i++) {
@@ -153,13 +154,13 @@ const Appointments = () => {
         <div key={`blank-${i}`} className="calendar-day empty-day"></div>
       );
     }
-    
+
     // Create array for the days in the month
     const days = dateArray.map(date => {
       const appsForDay = getAppointmentsForDate(date);
       const hasAppointments = appsForDay.length > 0;
       const isToday = isSameDay(date, new Date());
-      
+
       return (
         <div
           key={date.toISOString()}
@@ -182,7 +183,7 @@ const Appointments = () => {
         </div>
       );
     });
-    
+
     return [...blanks, ...days];
   };
 
@@ -220,7 +221,7 @@ const Appointments = () => {
                   <Nav.Link eventKey="calendar">Calendar</Nav.Link>
                 </Nav.Item>
               </Nav>
-              
+
               <Tab.Content>
                 {/* LIST TAB */}
                 <Tab.Pane eventKey="list">
@@ -244,33 +245,82 @@ const Appointments = () => {
                         <div className="text-center py-5">
                           <h5>No {activeListTab} appointments</h5>
                           <p className="text-muted">
-                            {activeListTab === 'upcoming' ? 
-                              'Schedule your next appointment by clicking the "Add Appointment" tab.' : 
+                            {activeListTab === 'upcoming' ?
+                              'Schedule your next appointment by clicking the "Add Appointment" tab.' :
                               'Your completed appointments will appear here.'}
                           </p>
-                  
+
                         </div>
                       ) : (
                         filteredAppointments.map((appointment) => (
-                          <Card key={appointment.id} className="mb-3 shadow-sm">
-                            <Card.Body>
-                              <Card.Title>{appointment.title}</Card.Title>
-                              <Card.Text>
-                                <strong>Date:</strong> {format(new Date(appointment.date), 'MMMM d, yyyy')}<br />
-                                <strong>Time:</strong> {appointment.time}
-                                {appointment.location && (
-                                  <>
-                                    <br />
-                                    <strong>Location:</strong> {appointment.location}
-                                  </>
-                                )}
+                          <Card key={appointment.id} className="mb-4 border-0 rounded-lg overflow-hidden shadow-sm">
+                            <Card.Body className="p-0">
+                              {/* Colored header section */}
+                              <div className="bg-primary bg-gradient p-3 text-white">
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <h5 className="mb-0 fw-bold d-flex align-items-center">
+                                    <FaCalendarAlt className="me-2" />
+                                    {appointment.title}
+                                  </h5>
+                                </div>
+                              </div>
+
+                              {/* Content section with improved spacing and layout */}
+                              <div className="p-3">
+                                <div className="row g-3">
+                                  <div className="col-md-6">
+                                    <div className="d-flex align-items-center">
+                                      <div className="bg-light rounded p-2 me-3">
+                                        <FaCalendarAlt className="text-primary" />
+                                      </div>
+                                      <div>
+                                        <small className="text-muted d-block">Date</small>
+                                        <span className="fw-medium">{format(new Date(appointment.date), "MMMM d, yyyy")}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="col-md-6">
+                                    <div className="d-flex align-items-center">
+                                      <div className="bg-light rounded p-2 me-3">
+                                        <FaClock className="text-primary" />
+                                      </div>
+                                      <div>
+                                        <small className="text-muted d-block">Time</small>
+                                        <span className="fw-medium">{appointment.time}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {appointment.location && (
+                                    <div className="col-12">
+                                      <div className="d-flex align-items-center">
+                                        <div className="bg-light rounded p-2 me-3">
+                                          <FaMapMarkerAlt className="text-primary" />
+                                        </div>
+                                        <div>
+                                          <small className="text-muted d-block">Location</small>
+                                          <span className="fw-medium">{appointment.location}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
                                 {appointment.description && (
-                                  <>
-                                    <br />
-                                    <strong>Description:</strong> {appointment.description}
-                                  </>
+                                  <div className="mt-3 pt-3 border-top">
+                                    <div className="d-flex">
+                                      <div className="bg-light rounded p-2 me-3 align-self-start">
+                                        <FaInfoCircle className="text-primary" />
+                                      </div>
+                                      <div>
+                                        <small className="text-muted d-block">Description</small>
+                                        <p className="mb-0">{appointment.description}</p>
+                                      </div>
+                                    </div>
+                                  </div>
                                 )}
-                              </Card.Text>
+                              </div>
                             </Card.Body>
                           </Card>
                         ))
@@ -278,7 +328,7 @@ const Appointments = () => {
                     </Card.Body>
                   </Card>
                 </Tab.Pane>
-                
+
                 {/* ADD APPOINTMENT TAB */}
                 <Tab.Pane eventKey="add">
                   <Card className="border-0">
@@ -363,8 +413,8 @@ const Appointments = () => {
                         </Form.Group>
 
                         <div className="d-flex justify-content-end">
-                          <Button 
-                            variant="secondary" 
+                          <Button
+                            variant="secondary"
                             className="me-2"
                             onClick={() => {
                               setActiveMainTab('list');
@@ -379,8 +429,8 @@ const Appointments = () => {
                           >
                             Cancel
                           </Button>
-                          <Button 
-                            variant="primary" 
+                          <Button
+                            variant="primary"
                             onClick={handleSubmitAppointment}
                             disabled={!currentAppointment.title || !currentAppointment.date || !currentAppointment.time}
                           >
@@ -391,7 +441,7 @@ const Appointments = () => {
                     </Card.Body>
                   </Card>
                 </Tab.Pane>
-                
+
                 {/* CALENDAR TAB */}
                 <Tab.Pane eventKey="calendar">
                   <Row>
@@ -430,8 +480,8 @@ const Appointments = () => {
                               <span className="legend-item"><div className="legend-color calendar-day-has-appointment-indicator"></div> Has appointment</span>
                               <span className="legend-item ms-3"><div className="legend-color calendar-day-today-indicator"></div> Today</span>
                             </div>
-                            <Button 
-                              variant="primary" 
+                            <Button
+                              variant="primary"
                               size="sm"
                               onClick={() => {
                                 setCurrentAppointment({
@@ -465,8 +515,8 @@ const Appointments = () => {
                           ) : (
                             <div className="text-center py-4">
                               <p>No appointments for this date.</p>
-                              <Button 
-                                variant="primary" 
+                              <Button
+                                variant="primary"
                                 size="sm"
                                 onClick={() => {
                                   setCurrentAppointment({
