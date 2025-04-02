@@ -1,13 +1,19 @@
 import os
 import sqlite3
-import sys
 import traceback
+import json
+from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, auth, initialize_app, firestore
 
-# Firebase Configuration (matching your firebase.jsx)
+# Import from our new modules instead of circular imports
+from database import initialize_database, get_db_connection
+from interaction import analyze_medication_interactions, check_medication_interaction
+from config import MEDICATION_INTERACTIONS
+
+# Firebase Configuration
 firebase_config = {
     "apiKey": "AIzaSyBJsZVFFqbhTCo4bZYVyI7qbRGpVBOB_fk",
     "authDomain": "major-project-5f739.firebaseapp.com",
@@ -26,87 +32,7 @@ except Exception as e:
 
 # Initialize Flask app
 app = Flask(__name__)
-
 CORS(app, resources={r"/*": {"origins": "*"}})
-
-def initialize_database(db_path='./Database/appointments.db'):
-    """
-    Comprehensive database initialization function
-    """
-    try:
-        # Ensure the directory exists
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        
-        # Create a new database connection
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        
-        # Create appointments table
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS appointments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT NOT NULL,
-            title TEXT NOT NULL,
-            date TEXT NOT NULL,
-            time TEXT NOT NULL,
-            location TEXT,
-            description TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-        ''')
-        
-        # Create medications table
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS medications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT NOT NULL,
-            name TEXT NOT NULL,
-            dosage TEXT NOT NULL,
-            frequency TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-        ''')
-        
-        # Create indexes for faster user-specific queries
-        cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_appointments_user_id 
-        ON appointments(user_id)
-        ''')
-        
-        cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_medications_user_id 
-        ON medications(user_id)
-        ''')
-        
-        # Commit changes and close connection
-        conn.commit()
-        conn.close()
-        
-        print(f"Database initialized successfully at {db_path}")
-        return True
-    
-    except Exception as e:
-        print(f"Database initialization error: {e}")
-        print(traceback.format_exc())
-        return False
-
-def get_db_connection(db_path='./Database/appointments.db'):
-    """
-    Robust database connection function
-    """
-    try:
-        # Ensure database directory exists
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        
-        # Attempt to connect to the database
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
-    
-    except Exception as e:
-        print(f"Database connection error: {e}")
-        print(traceback.format_exc())
-        raise
 
 # Initialize database on startup
 initialize_database()
@@ -126,7 +52,7 @@ def verify_firebase_token(request):
         print(f"Token verification error: {e}")
         print(traceback.format_exc())
         return None
-
+    
 
 @app.route('/appointments', methods=['GET'])
 def get_appointments():
@@ -226,6 +152,64 @@ def create_appointment():
         # Ensure connection is closed
         if 'conn' in locals():
             conn.close()
+
+# New endpoint to check medication interactions
+@app.route('/medication-interactions', methods=['GET'])
+def get_medication_interactions():
+    try:
+        # Verify user token first
+        user_id = verify_firebase_token(request)
+        if not user_id:
+            print("Unauthorized access attempt")
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        # Analyze medication interactions
+        interactions = analyze_medication_interactions(user_id)
+        
+        return jsonify({
+            'interactions': interactions,
+            'count': len(interactions)
+        }), 200
+    
+    except Exception as e:
+        print(f"Error in get_medication_interactions: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+
+# Endpoint to check interaction between two specific medications
+@app.route('/check-interaction', methods=['POST'])
+def check_specific_interaction():
+    try:
+        # Verify user token first
+        user_id = verify_firebase_token(request)
+        if not user_id:
+            print("Unauthorized access attempt")
+            return jsonify({"error": "Unauthorized"}), 401
+        
+        # Get request data
+        data = request.json
+        if 'medication1' not in data or 'medication2' not in data:
+            return jsonify({"error": "Missing medication names"}), 400
+        
+        # Check for interaction
+        interaction = check_medication_interaction(data['medication1'], data['medication2'])
+        
+        if interaction:
+            return jsonify({
+                'hasInteraction': True,
+                'severity': interaction['severity'],
+                'description': interaction['description']
+            }), 200
+        else:
+            return jsonify({
+                'hasInteraction': False
+            }), 200
+    
+    except Exception as e:
+        print(f"Error in check_specific_interaction: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+
 # Medications route with detailed error handling
 @app.route('/medications', methods=['GET'])
 def get_medications():
@@ -247,7 +231,16 @@ def get_medications():
         # Convert to list of dictionaries
         medications_list = []
         for medication in medications:
-            medications_list.append(dict(zip([column[0] for column in cursor.description], medication)))
+            med_dict = dict(zip([column[0] for column in cursor.description], medication))
+            
+            # Parse the times JSON string back into an array
+            if 'times' in med_dict and med_dict['times']:
+                try:
+                    med_dict['times'] = json.loads(med_dict['times'])
+                except:
+                    med_dict['times'] = []
+            
+            medications_list.append(med_dict)
         
         return jsonify(medications_list), 200
     
@@ -281,33 +274,46 @@ def create_medication():
         print("Received medication data:", data)
         
         # Validate required fields
-        required_fields = ['name', 'dosage', 'frequency']
+        required_fields = ['name', 'dosage', 'times']
         for field in required_fields:
             if field not in data:
                 print(f"Missing required field: {field}")
                 return jsonify({"error": f"Missing required field: {field}"}), 400
         
+        # Convert times array to JSON string for storage
+        times_json = json.dumps(data['times'])
+        
         # Attempt to get database connection
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Insert medication
+        # Insert medication with all the new fields
         cursor.execute('''
             INSERT INTO medications 
-            (user_id, name, dosage, frequency) 
-            VALUES (?, ?, ?, ?)
+            (user_id, name, dosage, times, medical_condition, start_date, end_date, notes) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             user_id, 
             data['name'], 
             data['dosage'], 
-            data['frequency']
+            times_json,
+            data.get('medicalCondition'),
+            data.get('startDate'),
+            data.get('endDate'),
+            data.get('notes')
         ))
         
         # Commit and get last row id
         conn.commit()
         medication_id = cursor.lastrowid
         
-        return jsonify({"id": medication_id}), 201
+        # After adding a new medication, check for new interactions
+        interactions = analyze_medication_interactions(user_id)
+        
+        return jsonify({
+            "id": medication_id,
+            "newInteractionsCount": len(interactions)
+        }), 201
     
     except sqlite3.Error as e:
         print(f"SQLite Error in create_medication: {e}")

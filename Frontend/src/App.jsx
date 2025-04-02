@@ -1,20 +1,6 @@
-// import './App.css'
-// import React from 'react';
-// import LandingPage from './components/LandingPage/LandingPage';
-
-// function App() {
-//   return (
-//       <LandingPage />
-//   );
-// }
-
-// export default App;
-
-
 import React, { useEffect } from "react";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap.bundle";
-// import 'bootstrap/dist/css/bootstrap.min.css';
 import LandingPage from './components/LandingPage/LandingPage';
 import "./App.css";
 import {
@@ -36,6 +22,7 @@ import { auth } from "./components/Authentication/firebase";
 import Appointments from "./components/Appointments/Appointments";
 import Medicines from "./components/Medicines/Medicines";
 import MainPage from "./components/Dashboard/profile";
+import MedicationManagement from "./components/InteractionTracker/InteractionTracker";
 
 function App() {
   const [user, setUser] = useState();
@@ -61,6 +48,7 @@ function App() {
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/medicines" element={<Medicines />} />
               <Route path="/profile" element={<UserPreferences />} />
+              <Route path="/interactions" element={<MedicationManagement />} />
             </Routes>
             <ToastContainer />
           </div>

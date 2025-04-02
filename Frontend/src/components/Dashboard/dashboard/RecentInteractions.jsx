@@ -1,7 +1,10 @@
 import { Box, Button, Flex, Heading, Icon, Text, VStack } from "@chakra-ui/react"
 import { WarningTwoIcon, CheckCircleIcon, ArrowRightIcon } from "@chakra-ui/icons"
+import { useNavigate } from "react-router-dom"
 
 export default function RecentInteractions() {
+
+  const navigate = useNavigate()
   const recentInteractions = [
     {
       id: 1,
@@ -68,7 +71,7 @@ export default function RecentInteractions() {
         </VStack>
       </Box>
       <Box p="4" borderTopWidth="1px">
-        <Button variant="outline" width="full">
+        <Button variant="outline" width="full" onClick={() => navigate('/interactions')}>
           View All Interactions
         </Button>
       </Box>
