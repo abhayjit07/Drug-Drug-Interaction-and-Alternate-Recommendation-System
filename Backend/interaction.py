@@ -5,7 +5,6 @@ from config import MEDICATION_INTERACTIONS
 # Date utilities for checking overlapping medications
 def is_date_range_overlap(start1, end1, start2, end2):
     """Check if two date ranges overlap"""
-    # Handle empty end dates (ongoing medications)
     if not end1:
         end1 = '9999-12-31'  # Far future date
     if not end2:
@@ -52,11 +51,9 @@ def find_overlapping_medications(user_id):
 
 def check_medication_interaction(med1_name, med2_name):
     """Check if two medications have a known interaction"""
-    # Normalize medication names for comparison (lowercase)
     med1_name_lower = med1_name.lower()
     med2_name_lower = med2_name.lower()
     
-    # Check both possible orders of the medication pair
     if (med1_name_lower, med2_name_lower) in MEDICATION_INTERACTIONS:
         return MEDICATION_INTERACTIONS[(med1_name_lower, med2_name_lower)]
     elif (med2_name_lower, med1_name_lower) in MEDICATION_INTERACTIONS:
