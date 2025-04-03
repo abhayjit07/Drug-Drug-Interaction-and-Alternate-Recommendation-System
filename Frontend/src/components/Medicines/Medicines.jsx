@@ -18,7 +18,7 @@ const Medicines = () => {
     const [newMedication, setNewMedication] = useState({
         name: '',
         dosage: '',
-        frequency: '',
+        times: [],
         medicalCondition: '',
         startDate: '',
         endDate: '',
@@ -102,7 +102,7 @@ const Medicines = () => {
             setNewMedication({
                 name: '',
                 dosage: '',
-                frequency: '',
+                times: [],
                 medicalCondition: '',
                 startDate: '',
                 endDate: '',
@@ -144,14 +144,10 @@ const Medicines = () => {
                                         <Card.Title>{med.name}</Card.Title>
                                         <Card.Text>
                                             <strong>Dosage:</strong> {med.dosage}<br />
-                                            <strong>Frequency:</strong> {med.frequency}<br />
+                                            <strong>Medication Times:</strong> {med.times}<br />
                                             <strong>Medical Condition:</strong> {med.medicalCondition}<br />
                                             <strong>Start Date:</strong> {med.startDate}<br />
-                                            {med.endDate && (
-                                                <>
-                                                    <strong>End Date:</strong> {med.endDate}<br />
-                                                </>
-                                            )}
+                                            <strong>End Date:</strong> {med.endDate}<br />
                                             {med.notes && (
                                                 <>
                                                     <strong>Notes:</strong> {med.notes}
@@ -205,17 +201,61 @@ const Medicines = () => {
                                 <Row>
                                     <Col md={6}>
                                         <Form.Group className="mb-3">
-                                            <Form.Label>Frequency</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="e.g., Twice daily"
-                                                value={newMedication.frequency}
-                                                onChange={(e) => setNewMedication({
-                                                    ...newMedication,
-                                                    frequency: e.target.value
-                                                })}
-                                                required
-                                            />
+                                            <Form.Label>Medication Times</Form.Label>
+                                            <div>
+                                                <Button
+                                                    variant="outline-primary"
+                                                    size="sm"
+                                                    className="mb-2"
+                                                    onClick={() => {
+                                                        // Add a new empty time to the times array
+                                                        setNewMedication({
+                                                            ...newMedication,
+                                                            times: [...(newMedication.times || []), '']
+                                                        });
+                                                    }}
+                                                >
+                                                    + Add Time
+                                                </Button>
+
+                                                {(newMedication.times || []).map((time, index) => (
+                                                    <Row key={index} className="mb-2 align-items-center">
+                                                        <Col xs={9}>
+                                                            <Form.Control
+                                                                type="time"
+                                                                value={time}
+                                                                onChange={(e) => {
+                                                                    const updatedTimes = [...newMedication.times];
+                                                                    updatedTimes[index] = e.target.value;
+                                                                    setNewMedication({
+                                                                        ...newMedication,
+                                                                        times: updatedTimes
+                                                                    });
+                                                                }}
+                                                            />
+                                                        </Col>
+                                                        <Col xs={3}>
+                                                            <Button
+                                                                variant="outline-danger"
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    const updatedTimes = newMedication.times.filter((_, i) => i !== index);
+                                                                    setNewMedication({
+                                                                        ...newMedication,
+                                                                        times: updatedTimes
+                                                                    });
+                                                                }}
+                                                            >
+                                                                Remove
+                                                            </Button>
+                                                        </Col>
+                                                    </Row>
+                                                ))}
+
+                                                {(!newMedication.times || newMedication.times.length === 0) && (
+                                                    <div className="text-muted">No times added yet. Click '+ Add Time' to specify when to take this medication.</div>
+                                                )}
+                                            </div>
                                         </Form.Group>
                                     </Col>
                                     <Col md={6}>
@@ -252,7 +292,7 @@ const Medicines = () => {
                                     </Col>
                                     <Col md={6}>
                                         <Form.Group className="mb-3">
-                                            <Form.Label>End Date (Optional)</Form.Label>
+                                            <Form.Label>End Date</Form.Label>
                                             <Form.Control
                                                 type="date"
                                                 value={newMedication.endDate}
@@ -292,11 +332,11 @@ const Medicines = () => {
                 )}
 
                 {activeTab === 'calendarView' && (
-                 <CalendarComponent
-                  selectedDate={selectedDate}
-                  setSelectedDate={setSelectedDate}
-                  medications={medicationsOnSelectedDate}
-                   />
+                    <CalendarComponent
+                        selectedDate={selectedDate}
+                        setSelectedDate={setSelectedDate}
+                        medications={medicationsOnSelectedDate}
+                    />
                 )}
             </Container>
         </>
