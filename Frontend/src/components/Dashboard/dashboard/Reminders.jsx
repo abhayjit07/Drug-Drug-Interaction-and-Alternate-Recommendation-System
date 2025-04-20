@@ -52,7 +52,7 @@ export default function Reminders() {
     const latestTwoMedicines = medicines.slice(0, 2);
 
     return (
-        <Box p={5} borderWidth="1px" borderRadius="lg" overflow="hidden">
+        <Box p={5} borderWidth="1px" borderRadius="lg" overflow="hidden" height= "500px">
             <Box p="4" borderBottomWidth="1px">
                 <Heading size="md"> Reminders </Heading>
                 <Text color="gray.600" mt="1">
@@ -85,8 +85,8 @@ export default function Reminders() {
                                     shadow="sm"
                                 >
                                     <Text fontWeight="large">{medicine.name}</Text>
-                                    {medicine.dosage && <Text fontSize="sm" color="gray.500">Date: {medicine.dosage}</Text>}
-                                    {medicine.frequency && <Text fontSize="sm" color="gray.500">{medicine.frequency}</Text>}
+                                    {medicine.dosage && <Text fontSize="sm" color="gray.500">Dosage: {medicine.dosage}</Text>}
+                                    {medicine.times && <Text fontSize="sm" color="gray.500">Time: {medicine.times}</Text>}
                                 </Box>
                             ))}
                         </VStack>

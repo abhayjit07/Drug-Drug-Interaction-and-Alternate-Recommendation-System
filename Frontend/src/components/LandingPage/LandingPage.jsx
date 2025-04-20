@@ -12,8 +12,8 @@ function LandingPage() {
       <Home />
       <Features />
       <About />
-      <Contact />
-      <Footer />
+      {/* <Contact />
+      <Footer /> */}
     </div>
   );
 }

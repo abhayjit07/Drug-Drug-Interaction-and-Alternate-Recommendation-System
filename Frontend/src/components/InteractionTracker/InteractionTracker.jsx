@@ -39,6 +39,7 @@ const MedicationManagement = () => {
             });
             setInteractions(response.data.interactions);
             setLoading(false);
+            console.log(response.data.interactions);
         } catch (error) {
             setError(error.message);
             showToast(error.message, 'danger');

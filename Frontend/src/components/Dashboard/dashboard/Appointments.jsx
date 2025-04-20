@@ -52,7 +52,7 @@ export default function Appointments() {
     const latestTwoAppointments = appointments.slice(0, 2);
 
     return (
-        <Box p={5} borderWidth="1px" borderRadius="lg" overflow="hidden">
+        <Box p={5} borderWidth="1px" borderRadius="lg" overflow="hidden" height= "500px">
             <Box p="4" borderBottomWidth="1px">
                 <Heading size="md"> Upcoming Appointments </Heading>
                 <Text color="gray.600" mt="1">

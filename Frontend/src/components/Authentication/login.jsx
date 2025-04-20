@@ -4,6 +4,7 @@ import { auth } from "./firebase";
 import { toast } from "react-toastify";
 import SignInwithGoogle from "./signInWIthGoogle";
 import Navbar from "../LandingPage/Navbar";
+import loginImg from "../../assets/loginPage2.png";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -27,22 +28,22 @@ function Login() {
   };
 
   return (
-    <>
+
     <div className="container d-flex justify-content-center align-items-center vh-100">
-      <div className="card shadow-sm" style={{ width: '350px' }}>
+     <div>
+        <img src={loginImg}/>
+      </div>
+      <div className="card shadow-sm container-fluid" style={{ width: '450px' }}>
         <div className="card-body p-4">
           <form onSubmit={handleSubmit}>
-            <div className="text-center mb-4">
-              <h3 className="card-title fw-bold text-primary">Login</h3>
+            <div className="text-center mb-5">
+              <h3 className="card-title fw-bold text-login">Login</h3>
               <p className="text-muted">Enter your credentials</p>
             </div>
 
             <div className="mb-3">
               <label htmlFor="email" className="form-label">Email address</label>
               <div className="input-group">
-                <span className="input-group-text">
-                  <i className="bi bi-envelope"></i>
-                </span>
                 <input
                   id="email"
                   type="email"
@@ -55,12 +56,9 @@ function Login() {
               </div>
             </div>
 
-            <div className="mb-3">
+            <div className="mb-5">
               <label htmlFor="password" className="form-label">Password</label>
               <div className="input-group">
-                <span className="input-group-text">
-                  <i className="bi bi-lock"></i>
-                </span>
                 <input
                   id="password"
                   type="password"
@@ -76,7 +74,7 @@ function Login() {
             <div className="d-grid gap-2 mb-3">
               <button
                 type="submit"
-                className="btn btn-primary btn-lg"
+                className="btn btn-lg login-button"
               >
                 Login
               </button>
@@ -95,7 +93,7 @@ function Login() {
         </div>
       </div>
     </div>
-    </>
+
   );
 }
 

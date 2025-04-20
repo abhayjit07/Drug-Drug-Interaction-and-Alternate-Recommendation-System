@@ -379,8 +379,24 @@ nav {
 
 .about-container{
   text-align: center;
-  padding: 0 5vw;
+  padding: 0 5vh 5vw 5vw;
   font-size: large;
+}
+
+.login-button {
+  background-color: #ff8c26;
+  color: white
+}
+.text-login {
+  color: #ff8c26;
+}
+.login-button:hover {
+  background-color: #e67300;
+  color: white;
+}
+.login-bg {
+  background-color: #FFF9F0;
+  width: 100%;
 }
 
 @media (max-width: 1000px) {
