@@ -72,7 +72,7 @@ export default function Reminders() {
                         </Box>
                     ) : medicines.length === 0 ? (
                         <Box p={4} bg="gray.100" borderRadius="md">
-                            <Text>No upcoming appointments found.</Text>
+                            <Text>No upcoming reminders found.</Text>
                         </Box>
                     ) : (
                         <VStack spacing={4} align="stretch">

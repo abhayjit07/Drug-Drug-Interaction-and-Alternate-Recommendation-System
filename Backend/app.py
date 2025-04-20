@@ -37,7 +37,10 @@ except Exception as e:
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+
+# CORS(app, resources={r"/*": {"origins": "*"}})
+# CORS(app)
+CORS(app, supports_credentials=True, origins="*")
 
 # Initialize database on startup
 initialize_database()

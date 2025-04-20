@@ -2,31 +2,33 @@ import React, { useState } from 'react';
 import { Card, Button, Row, Col, Modal, Badge } from 'react-bootstrap';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addDays, isSameDay } from 'date-fns';
 import './Calendar.css'; // Import your CSS file for styling
+import { parseISO } from 'date-fns';
 
 const CalendarComponent = ({ selectedDate, setSelectedDate, medications }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalDate, setModalDate] = useState(null);
-  
+
   // Get medications for a specific date
   const getMedicationsForDate = (date) => {
-    const formattedDate = format(date, 'yyyy-MM-dd');
-    return medications.filter(med => 
-      med.startDate <= formattedDate && (!med.endDate || med.endDate >= formattedDate)
-    );
+    return medications.filter((med) => {
+      const medStartDate = parseISO(med.start_date); // Parse start date
+      const medEndDate = med.end_date ? parseISO(med.end_date) : null; // Parse end date if it exists
+      return (
+        medStartDate <= date &&
+        (!medEndDate || medEndDate >= date)
+      );
+    });
   };
 
   // Generate month days with proper offset for first day of month
   const generateCalendarDays = () => {
     const monthStart = startOfMonth(selectedDate);
     const monthEnd = endOfMonth(selectedDate);
-    const startDate = monthStart;
-    const endDate = monthEnd;
-    
-    const dateArray = eachDayOfInterval({ start: startDate, end: endDate });
-    
+    const dateArray = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
     // Get what day of the week the month starts on (0 = Sunday, 1 = Monday, etc.)
     const startDay = getDay(monthStart);
-    
+
     // Add empty spots for days before the start of the month
     const blanks = [];
     for (let i = 0; i < startDay; i++) {
@@ -34,23 +36,22 @@ const CalendarComponent = ({ selectedDate, setSelectedDate, medications }) => {
         <div key={`blank-${i}`} className="calendar-day empty-day"></div>
       );
     }
-    
+
     // Create array for the days in the month
-    const days = dateArray.map(date => {
-      const formattedDate = format(date, 'yyyy-MM-dd');
-      const medsForDay = getMedicationsForDate(date);
+    const days = dateArray.map((date) => {
+      const medsForDay = getMedicationsForDate(date); // Get medications for the current date
       const hasMedications = medsForDay.length > 0;
       const isToday = isSameDay(date, new Date());
-      
+
       return (
         <div
           key={date.toISOString()}
           className={`calendar-day 
-            ${format(date, 'M') !== format(selectedDate, 'M') ? 'calendar-day-disabled' : ''} 
-            ${hasMedications ? 'calendar-day-has-medication' : ''} 
-            ${isToday ? 'calendar-day-today' : ''}
-            ${isSameDay(date, selectedDate) ? 'calendar-day-selected' : ''}
-          `}
+                    ${format(date, 'M') !== format(selectedDate, 'M') ? 'calendar-day-disabled' : ''} 
+                    ${hasMedications ? 'calendar-day-has-medication' : ''} 
+                    ${isToday ? 'calendar-day-today' : ''}
+                    ${isSameDay(date, selectedDate) ? 'calendar-day-selected' : ''}
+                `}
           onClick={() => {
             setSelectedDate(date);
             if (hasMedications) {
@@ -68,7 +69,7 @@ const CalendarComponent = ({ selectedDate, setSelectedDate, medications }) => {
         </div>
       );
     });
-    
+
     return [...blanks, ...days];
   };
 
@@ -156,7 +157,7 @@ const CalendarComponent = ({ selectedDate, setSelectedDate, medications }) => {
                 {med.instructions && <p>{med.instructions}</p>}
                 <p>
                   <small>
-                    <strong>Period:</strong> {med.startDate} 
+                    <strong>Period:</strong> {med.startDate}
                     {med.endDate ? ` to ${med.endDate}` : ' (ongoing)'}
                   </small>
                 </p>
