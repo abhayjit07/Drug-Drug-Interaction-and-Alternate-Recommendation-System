@@ -4,7 +4,7 @@ This project focuses on the prediction of Drug-Drug Interactions (DDIs) and reco
 
 ---
 
-## 🧪 Table of Contents
+## Table of Contents
 
 - [Introduction](#introduction)
 - [Objectives](#objectives)
