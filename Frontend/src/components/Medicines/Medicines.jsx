@@ -7,7 +7,7 @@ import DashboardLayout from '../Dashboard/dashboard/DashboardLayout';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
 import { Calendar } from 'react-bootstrap-icons';
 import CalendarComponent from './medicines/Calender';
-
+import { FaPills, FaClock, FaNotesMedical, FaCalendarAlt, FaInfoCircle } from "react-icons/fa";
 
 const Medicines = () => {
     const [user, setUser] = useState(null);
@@ -139,21 +139,100 @@ const Medicines = () => {
                             <p className="text-center">No medications added yet</p>
                         ) : (
                             medications.map((med, index) => (
-                                <Card key={index} className="mb-3">
-                                    <Card.Body>
-                                        <Card.Title>{med.name}</Card.Title>
-                                        <Card.Text>
-                                            <strong>Dosage:</strong> {med.dosage}<br />
-                                            <strong>Medication Times:</strong> {med.times}<br />
-                                            <strong>Medical Condition:</strong> {med.medicalCondition}<br />
-                                            <strong>Start Date:</strong> {med.startDate}<br />
-                                            <strong>End Date:</strong> {med.endDate}<br />
-                                            {med.notes && (
-                                                <>
-                                                    <strong>Notes:</strong> {med.notes}
-                                                </>
-                                            )}
-                                        </Card.Text>
+                                <Card key={index} className="mb-4 border-0 rounded-lg overflow-hidden shadow-sm">
+                                    <Card.Body className="p-0">
+                                        {/* Colored header section */}
+                                        <div className="bg-gradient bg-primary p-3 text-white">
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <h5 className="mb-0 fw-bold d-flex align-items-center">
+                                                    <FaPills className="me-2" />
+                                                    {med.name}
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        {/* Content section with improved spacing and layout */}
+                                        <div className="p-3">
+                                            <div className="row g-3">
+                                                <div className="col-md-6">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="bg-light rounded p-2 me-3">
+                                                            <FaPills className="text-primary" />
+                                                        </div>
+                                                        <div>
+                                                            <small className="text-muted d-block">Dosage</small>
+                                                            <span className="fw-medium">{med.dosage}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="col-md-6">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="bg-light rounded p-2 me-3">
+                                                            <FaClock className="text-primary" />
+                                                        </div>
+                                                        <div>
+                                                            <small className="text-muted d-block">Times</small>
+                                                            <span className="fw-medium">{med.times.join(", ")}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="col-md-6">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="bg-light rounded p-2 me-3">
+                                                            <FaCalendarAlt className="text-primary" />
+                                                        </div>
+                                                        <div>
+                                                            <small className="text-muted d-block">Start Date</small>
+                                                            <span className="fw-medium">{med.start_date}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {med.end_date && (
+                                                    <div className="col-md-6">
+                                                        <div className="d-flex align-items-center">
+                                                            <div className="bg-light rounded p-2 me-3">
+                                                                <FaCalendarAlt className="text-primary" />
+                                                            </div>
+                                                            <div>
+                                                                <small className="text-muted d-block">End Date</small>
+                                                                <span className="fw-medium">{med.end_date}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {med.medical_condition && (
+                                                    <div className="col-12">
+                                                        <div className="d-flex align-items-center">
+                                                            <div className="bg-light rounded p-2 me-3">
+                                                                <FaNotesMedical className="text-primary" />
+                                                            </div>
+                                                            <div>
+                                                                <small className="text-muted d-block">Condition</small>
+                                                                <span className="fw-medium">{med.medical_condition}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {med.notes && (
+                                                    <div className="mt-3 pt-3 border-top">
+                                                        <div className="d-flex">
+                                                            <div className="bg-light rounded p-2 me-3 align-self-start">
+                                                                <FaInfoCircle className="text-primary" />
+                                                            </div>
+                                                            <div>
+                                                                <small className="text-muted d-block">Notes</small>
+                                                                <p className="mb-0">{med.notes}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
                                     </Card.Body>
                                 </Card>
                             ))
@@ -335,7 +414,7 @@ const Medicines = () => {
                     <CalendarComponent
                         selectedDate={selectedDate}
                         setSelectedDate={setSelectedDate}
-                        medications={medicationsOnSelectedDate}
+                        medications={medications}
                     />
                 )}
             </Container>
