@@ -4,6 +4,7 @@ import { auth, db } from "./firebase";
 import { setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
 import SignInwithGoogle from "./signInWIthGoogle";
+import registerImg from "../../assets/loginPage2.png"; // Use the same image as the login page
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -32,7 +33,7 @@ function Register() {
           email: user.email,
           firstName: fname,
           lastName: lname,
-          photo: ""
+          photo: "",
         });
       }
       console.log("User Registered Successfully!!");
@@ -50,21 +51,23 @@ function Register() {
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
-      <div className="card shadow-sm" style={{ width: '400px' }}>
+      <div>
+        <img src={registerImg} alt="Register" />
+      </div>
+      <div className="card shadow-sm container-fluid" style={{ width: "450px" }}>
         <div className="card-body p-4">
           <form onSubmit={handleRegister}>
-            <div className="text-center mb-4">
-              <h3 className="card-title fw-bold text-primary">Sign Up</h3>
+            <div className="text-center mb-5">
+              <h3 className="card-title fw-bold text-login">Register</h3>
               <p className="text-muted">Create your account</p>
             </div>
 
             <div className="row mb-3">
               <div className="col-md-6">
-                <label htmlFor="firstName" className="form-label">First Name</label>
+                <label htmlFor="firstName" className="form-label">
+                  First Name
+                </label>
                 <div className="input-group">
-                  <span className="input-group-text">
-                    <i className="bi bi-person"></i>
-                  </span>
                   <input
                     id="firstName"
                     type="text"
@@ -76,11 +79,10 @@ function Register() {
                 </div>
               </div>
               <div className="col-md-6">
-                <label htmlFor="lastName" className="form-label">Last Name</label>
+                <label htmlFor="lastName" className="form-label">
+                  Last Name
+                </label>
                 <div className="input-group">
-                  <span className="input-group-text">
-                    <i className="bi bi-person"></i>
-                  </span>
                   <input
                     id="lastName"
                     type="text"
@@ -93,11 +95,10 @@ function Register() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email Address</label>
+              <label htmlFor="email" className="form-label">
+                Email Address
+              </label>
               <div className="input-group">
-                <span className="input-group-text">
-                  <i className="bi bi-envelope"></i>
-                </span>
                 <input
                   id="email"
                   type="email"
@@ -110,11 +111,10 @@ function Register() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="password" className="form-label">Password</label>
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
               <div className="input-group">
-                <span className="input-group-text">
-                  <i className="bi bi-lock"></i>
-                </span>
                 <input
                   id="password"
                   type="password"
@@ -131,11 +131,10 @@ function Register() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="form-label">
+                Confirm Password
+              </label>
               <div className="input-group">
-                <span className="input-group-text">
-                  <i className="bi bi-lock-fill"></i>
-                </span>
                 <input
                   id="confirmPassword"
                   type="password"
@@ -149,21 +148,21 @@ function Register() {
             </div>
 
             <div className="d-grid gap-2 mb-3">
-              <button
-                type="submit"
-                className="btn btn-primary btn-lg"
-              >
-                Sign Up
+              <button type="submit" className="btn btn-lg login-button">
+                Register
               </button>
             </div>
 
-            <div className="text-center mb-3">  
+            <div className="text-center mb-3">
               <SignInwithGoogle />
             </div>
 
             <div className="text-center">
               <p className="small text-muted">
-                Already have an account? <a href="/login" className="text-primary fw-bold">Login</a>
+                Already have an account?{" "}
+                <a href="/login" className="text-primary fw-bold">
+                  Login Here
+                </a>
               </p>
             </div>
           </form>
