@@ -142,6 +142,26 @@ A multi-stage pipeline performs the following:
 - Ensemble model outperforms individual models slightly.
 - Recommendation system filters out risky drug pairs and suggests alternatives effectively.
 
+
+The results of the models implemented in this project are presented below.
+
+### Results of Our Models
+
+| **Method**               | **Precision** | **Recall** | **F1-Score** |
+|--------------------------|---------------|------------|--------------|
+| **BioBERT Model**        | 0.86          | 0.88       | 0.87         |
+| Random Forest            | 0.52          | 0.57       | 0.49         |
+| Decision Tree            | 0.52          | 0.57       | 0.46         |
+| XGB-SMOTE                | 0.59          | 0.64       | 0.58         |
+| SVM-SMOTE                | 0.60          | 0.64       | 0.61         |
+| **Ensemble-Based Models**|               |            |              |
+| Logistic Regression      | 0.90          | 0.86       | 0.88         |
+| Random Forest            | 0.89          | 0.87       | 0.88         |
+| Gradient Boosting        | 0.90          | 0.87       | 0.88         |
+| XGBoost                  | 0.90          | 0.88       | 0.89         |
+| Neural Network           | 0.89          | 0.88       | 0.89         |
+
+
 ---
 
 ## Conclusion & Future Work
