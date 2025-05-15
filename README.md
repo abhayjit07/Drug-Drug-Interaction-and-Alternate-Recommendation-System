@@ -10,11 +10,6 @@ This project focuses on the prediction of Drug-Drug Interactions (DDIs) and reco
 - [Objectives](#objectives)
 - [Methodology](#methodology)
 - [Datasets Used](#datasets-used)
-- [Pipeline Overview](#pipeline-overview)
-  - [Pipeline 1: BioBERT-based Classification](#pipeline-1-biobert-based-classification)
-  - [Pipeline 2: Word2Vec + Classifiers](#pipeline-2-word2vec--classifiers)
-  - [Pipeline 3: Alternative Drug Recommendation](#pipeline-3-alternative-drug-recommendation)
-- [Ensemble Model](#ensemble-model)
 - [Results](#results)
 - [Conclusion & Future Work](#conclusion--future-work)
 
@@ -37,12 +32,98 @@ Detecting drug-drug interactions (DDIs) is crucial in healthcare to avoid harmfu
 
 ## Methodology
 
-Three main pipelines were developed:
+This project presents a **multi-pipeline framework** for Drug-Drug Interaction (DDI) prediction and alternative drug recommendation. It aims to fulfill two main objectives:
 
-1. **Pipeline 1**: BioBERT-based and word2vec based models trained on DDI corpus for sentence-level relation classification.
-2. **Pipeline 2**: Alternative recommendation system using cosine similarity of Word2Vec vectors, filtered through DDI models.
+1. **Detect if two drugs interact negatively**, and  
+2. **Recommend an alternative, non-interacting drug pair** if a negative interaction is detected.
 
-These pipelines are combined through an ensemble model for final prediction.
+The system is structured into two primary pipelines:
+
+---
+
+### Pipeline 1: DDI Detection
+
+#### Model 1: DDI Detection Using BioBERT
+
+- **Dataset**: Utilizes the **DDICorpus dataset**, which includes:
+  - 784 DrugBank documents with curated drug interaction texts
+  - 233 MedLine abstracts selected using the query “drug-drug interactions”
+- **Annotations**: Contains manually annotated pharmacological substances and interaction types.
+- **Approach**: BioBERT (a domain-specific variant of BERT pretrained on biomedical literature) is fine-tuned to classify the nature of interaction between drug entities based on the sentence context.
+- **Objective**: Determine the presence and type of DDI from sentence-level biomedical text.
+
+#### Model 2: DDI Detection Using Contextual Embeddings (Word2Vec)
+
+- **Data Source**: Abstracts from **PubMed**.
+- **Approach**:
+  - Train a **Word2Vec** model on PubMed abstracts to capture biomedical context.
+  - Represent drug pairs as vector pairs using the trained embeddings.
+  - A classifier predicts whether the pair results in a negative interaction.
+- **Class Imbalance Handling**:  
+  Applies **SMOTE (Synthetic Minority Over-sampling Technique)** to generate synthetic examples for the minority class and mitigate bias toward the majority class.
+
+#### Ensemble: Model Fusion with Meta-Classifier
+
+- Uses a **stacking ensemble method** to combine predictions from Model 1 and Model 2.
+- A **meta-classifier** takes the individual predictions as input and produces the final decision.
+- **Advantage**: 
+  - Model 1 captures textual semantic nuances, while Model 2 leverages contextual similarity in biomedical language.
+  - The ensemble mitigates individual model weaknesses and improves overall robustness in DDI prediction.
+
+---
+
+### Pipeline 2: Alternative Drug Recommendation
+
+This pipeline activates when a harmful DDI is detected.
+
+- For each drug in the interacting pair, the system identifies the **Top-N most pharmacologically similar drugs**.
+- Each candidate pair is **re-evaluated using the DDI detection model**.
+- The **most similar pair with no predicted interaction** is selected as the alternative.
+
+> 🔁 This iterative process ensures that the recommended drug pair is both **pharmacologically relevant** and **safe**.
+
+---
+
+### Validation Framework for Pipeline 2
+
+To verify the functional similarity of alternative drug candidates, a **Patent Validation Framework** is implemented.
+
+#### Framework Architecture
+
+A multi-stage pipeline performs the following:
+
+1. **Data Collection**  
+   - Retrieve compound names and convert to **PubChem CIDs**.
+   - Fetch related **patent identifiers** using PubChem and Google Patents.
+
+2. **Descriptor Generation**  
+   - Use **Gemini 1.5 Pro (Google's multimodal AI model)** to extract **functional descriptors** from patent text (titles, abstracts, descriptions).
+
+3. **Similarity Analysis**  
+   - Compute **similarity scores** between drug candidates based on functional descriptors.
+
+4. **Results Management**  
+   - Store and organize outputs in structured formats (e.g., CSV) for further use and reporting.
+
+#### Key Components
+
+- **PubChem Integration**
+  - Convert drug names to **Compound Identifiers (CIDs)**
+  - Retrieve associated **patent IDs**
+
+- **Patent Extraction**
+  - Scrape Google Patents while adhering to rate limits
+  - Extract text content (title, abstract, description)
+
+- **AI-Powered Analysis**
+  - Generate interpretable descriptors using **Gemini**
+  - Score similarity between drugs using descriptor overlap and semantic analysis
+
+- **Reporting**
+  - Output results as structured records
+  - Generate **CSV reports** for external validation or visualization
+
+
 
 ---
 
@@ -51,37 +132,6 @@ These pipelines are combined through an ensemble model for final prediction.
 1. **DDI Corpus** – Annotated drug-drug interactions with sentence-level context.
 2. **PubMed Abstracts** – Biomedical abstracts used to train Word2Vec.
 3. **DrugBank XML** – Drug descriptions, names, and product details.
-
----
-
-## Pipeline Overview
-
-### Pipeline 1 Model 1: BioBERT-based Classification
-
-- Input: Sentences from DDI Corpus with tagged drug entities.
-- Model: Fine-tuned BioBERT with AdamW optimizer.
-- Output: Binary classification for drug pair interactions.
-
-### Pipeline 1 Model 2: Word2Vec + Classifiers
-
-- Train Word2Vec on PubMed data.
-- Concatenate drug vectors.
-- Train multiple classifiers (SVM, XGBoost, Random Forest).
-- Address class imbalance with SMOTE.
-
-### Pipeline 2: Alternative Drug Recommendation
-
-- Build similarity matrix of drugs using Word2Vec.
-- If interaction exists, recommend the most similar non-interacting alternative pair.
-- Verify alternatives using trained DDI models.
-
----
-
-## Ensemble Model
-
-- Predictions from BioBERT, Word2Vec-based SVM, and XGBoost are stacked.
-- Meta-classifiers (Logistic Regression, Gradient Boosting, Random Forest, and XGBoost) are trained.
-- Best performance achieved using XGBoost as meta-classifier.
 
 ---
 
